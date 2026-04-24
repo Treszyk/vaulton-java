@@ -7,4 +7,16 @@ public record EncryptedValue(
         byte[] nonce,
         byte[] cipherText,
         byte[] tag
-) {}
+) {
+    public EncryptedValue {
+        if (nonce == null || nonce.length != CryptoConstants.GCM_NONCE_LEN) {
+            throw new IllegalArgumentException("Invalid nonce length");
+        }
+        if (tag == null || tag.length != CryptoConstants.GCM_TAG_LEN) {
+            throw new IllegalArgumentException("Invalid tag length");
+        }
+        if (cipherText == null || cipherText.length > CryptoConstants.MAX_ENTRY_CIPHERTEXT_BYTES) {
+            throw new IllegalArgumentException("Invalid payload size");
+        }
+    }
+}
