@@ -18,5 +18,23 @@ public record EncryptedValue(
         if (cipherText == null || cipherText.length > CryptoConstants.MAX_ENTRY_CIPHERTEXT_BYTES) {
             throw new IllegalArgumentException("Invalid payload size");
         }
+        nonce = nonce.clone();
+        cipherText = cipherText.clone();
+        tag = tag.clone();
+    }
+
+    @Override
+    public byte[] nonce() {
+        return nonce.clone();
+    }
+
+    @Override
+    public byte[] cipherText() {
+        return cipherText.clone();
+    }
+
+    @Override
+    public byte[] tag() {
+        return tag.clone();
     }
 }

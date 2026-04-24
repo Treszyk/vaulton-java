@@ -32,6 +32,7 @@ public class RefreshToken {
     private User user;
 
     public boolean isActive() {
+        if (expiresAt == null) return false;
         return revokedAt == null && expiresAt.isAfter(LocalDateTime.now());
     }
 }
