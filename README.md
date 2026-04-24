@@ -12,7 +12,7 @@ Vaulton is a zero-knowledge password manager designed around an anonymous Accoun
 ## Repository Contents
 
 - `frontend/`: Original Angular web application.
-- `vaulton-api/`: The Java Spring Boot 4.0 backend.
+- `vaultonapi/`: The Java Spring Boot 4.0 backend.
 
 ## Development Setup
 
