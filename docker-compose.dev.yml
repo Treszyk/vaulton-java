@@ -20,13 +20,14 @@ services:
 
   vaulton-api:
     build:
-      context: ./backend
-      dockerfile: Api/Dockerfile
+      context: ./vaultonapi
+      dockerfile: Dockerfile
     container_name: vaulton-api-dev
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__Default=${ConnectionStrings__Default}
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_HOST=vaulton-db
+      - DB_USER=postgres
+      - SQL_PASSWORD=${SQL_PASSWORD}
       - Jwt__Secret=${Jwt__Secret}
       - Jwt__Issuer=${Jwt__Issuer}
       - Jwt__Audience=${Jwt__Audience}
@@ -39,7 +40,7 @@ services:
       vaulton-db:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080/healthz']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/api/status']
       interval: 10s
       timeout: 3s
       retries: 5
