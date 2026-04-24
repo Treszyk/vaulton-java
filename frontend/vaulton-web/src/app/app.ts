@@ -1,0 +1,30 @@
+import { Component, inject, signal } from '@angular/core';
+import { RouterOutlet, Router } from '@angular/router';
+import { SessionService } from './core/auth/session.service';
+import { VaultonNavComponent } from './features/shell/vaulton-nav.component';
+import { ToastComponent } from './shared/ui/toast/toast.component';
+import { DemoCountdownComponent } from './shared/ui/demo-countdown/demo-countdown.component';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet, VaultonNavComponent, ToastComponent, DemoCountdownComponent],
+  templateUrl: './app.html',
+  styleUrl: './app.css',
+})
+export class App {
+  protected readonly title = signal('vaulton-web');
+  loading = signal(true);
+  private readonly session = inject(SessionService);
+  public readonly router = inject(Router);
+
+  constructor() {
+    this.session.tryRestore().subscribe((ok: boolean) => {
+      if (ok) {
+        this.router.navigateByUrl('/vault').then(() => this.loading.set(false));
+      } else {
+        this.loading.set(false);
+      }
+    });
+  }
+}

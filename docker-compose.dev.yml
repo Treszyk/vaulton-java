@@ -1,0 +1,73 @@
+services:
+  vaulton-db:
+    image: postgres:17-alpine
+    container_name: vaulton-db-dev
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=vaulton_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - vaulton-db-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vaulton-net
+
+  vaulton-api:
+    build:
+      context: ./backend
+      dockerfile: Api/Dockerfile
+    container_name: vaulton-api-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__Default=${ConnectionStrings__Default}
+      - Jwt__Secret=${Jwt__Secret}
+      - Jwt__Issuer=${Jwt__Issuer}
+      - Jwt__Audience=${Jwt__Audience}
+      - Auth__VerifierPepper=${Auth__VerifierPepper}
+      - Auth__FakeSaltSecret=${Auth__FakeSaltSecret}
+      - Auth__VerifierPbkdf2Iterations=${Auth__VerifierPbkdf2Iterations}
+    ports:
+      - '8080:8080'
+    depends_on:
+      vaulton-db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/healthz']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - vaulton-net
+
+  vaulton-web:
+    build:
+      context: ./frontend/vaulton-web
+      dockerfile: Dockerfile.dev
+    container_name: vaulton-web-dev
+    ports:
+      - '4200:4200'
+    volumes:
+      - ./frontend/vaulton-web/src:/app/src
+      - ./frontend/vaulton-web/public:/app/public
+      - ./docs:/docs
+      - ./frontend/vaulton-web/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/vaulton-web/postcss.config.js:/app/postcss.config.js
+    depends_on:
+      vaulton-api:
+        condition: service_healthy
+    networks:
+      - vaulton-net
+
+volumes:
+  vaulton-db-dev-data:
+
+networks:
+  vaulton-net:
+    driver: bridge

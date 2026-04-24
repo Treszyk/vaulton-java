@@ -1,0 +1,28 @@
+@if (!loading()) {
+  <div
+    class="h-[100dvh] transition-opacity duration-500 selection:bg-vault-purple/30 selection:text-vault-purple-bright flex flex-col overflow-hidden"
+  >
+    @if (!router.url.includes('/docs')) {
+      <app-vaulton-nav class="flex-none"></app-vaulton-nav>
+    }
+
+    <main
+      class="w-full flex-1 min-h-0 flex flex-col"
+      [class.auth-layout]="router.url.includes('/auth') || router.url === '/' || router.url === ''"
+      [class.max-w-7xl]="router.url.includes('/vault')"
+      [class.mx-auto]="router.url.includes('/vault')"
+      [class.px-4]="router.url.includes('/vault')"
+      [class.md:px-8]="router.url.includes('/vault')"
+    >
+      <router-outlet></router-outlet>
+    </main>
+    <app-toast></app-toast>
+    <app-demo-countdown></app-demo-countdown>
+  </div>
+} @else {
+  <div class="h-[100dvh] bg-black flex items-center justify-center">
+    <div
+      class="w-12 h-12 border-4 border-vault-purple/20 border-t-vault-purple rounded-full animate-spin"
+    ></div>
+  </div>
+}
