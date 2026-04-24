@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.domain.crypto;
+package dev.vaulton.vaultonapi.domain.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package dev.vaulton.vaultonapi.domain.model;
 
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
-import dev.vaulton.vaultonapi.domain.crypto.KdfMode;
+import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
