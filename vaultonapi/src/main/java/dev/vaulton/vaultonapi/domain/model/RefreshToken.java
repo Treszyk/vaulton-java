@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -22,9 +22,9 @@ public class RefreshToken {
     // Hash of the opaque refresh token
     private SecureBuffer tokenHash;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private LocalDateTime revokedAt;
+    private Instant createdAt;
+    private Instant expiresAt;
+    private Instant revokedAt;
     private RevocationReason revocationReason;
 
     // Hash of the active access token's Jti
@@ -34,6 +34,6 @@ public class RefreshToken {
 
     public boolean isActive() {
         if (expiresAt == null) return false;
-        return revokedAt == null && expiresAt.isAfter(LocalDateTime.now());
+        return revokedAt == null && expiresAt.isAfter(Instant.now());
     }
 }

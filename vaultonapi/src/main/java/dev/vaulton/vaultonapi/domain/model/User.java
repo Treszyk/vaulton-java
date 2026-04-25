@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -44,10 +44,10 @@ public class User {
     private Integer cryptoSchemaVer;
 
     // metadata
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDateTime lastLoginAt;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private Instant lastLoginAt;
     private Integer failedLoginCount;
-    private LocalDateTime lastFailedLoginAt;
-    private LocalDateTime lockedUntil;
+    private Instant lastFailedLoginAt;
+    private Instant lockedUntil;
 }
