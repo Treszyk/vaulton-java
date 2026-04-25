@@ -1,6 +1,7 @@
 package dev.vaulton.vaultonapi.domain.model;
 
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
+import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,18 +17,18 @@ import java.util.UUID;
 @AllArgsConstructor
 @Getter @Setter
 public class User {
-    UUID id;
+    private UUID id;
 
     // Auth
-    private byte[] verifier;
-    private byte[] S_verifier; // I realy want to keep this crypto salt naming...
+    private SecureBuffer verifier;
+    private SecureBuffer S_verifier; // I really want to keep this crypto salt naming...
 
     // Admin (Elevated actions)
-    private byte[] adminVerifier;
-    private byte[] S_adminVerifier;
+    private SecureBuffer adminVerifier;
+    private SecureBuffer S_adminVerifier;
 
     // Initial KDF salt
-    private byte[] S_pwd;
+    private SecureBuffer S_pwd;
 
     private KdfMode kdfMode;
 
@@ -36,8 +37,8 @@ public class User {
     private EncryptedValue mkWrapRk;
 
     // Recovery
-    private byte[] rkVerifier;
-    private byte[] S_rk;
+    private SecureBuffer rkVerifier;
+    private SecureBuffer S_rk;
 
     // Crypto schema version (always 1 in this prototype)
     private Integer cryptoSchemaVer;

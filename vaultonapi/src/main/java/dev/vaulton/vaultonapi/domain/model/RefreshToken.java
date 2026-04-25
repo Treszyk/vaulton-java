@@ -1,5 +1,6 @@
 package dev.vaulton.vaultonapi.domain.model;
 
+import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class RefreshToken {
     private UUID userId;
 
     // Hash of the opaque refresh token
-    private byte[] tokenHash;
+    private SecureBuffer tokenHash;
 
     private LocalDateTime createdAt;
     private LocalDateTime expiresAt;
@@ -27,7 +28,7 @@ public class RefreshToken {
     private RevocationReason revocationReason;
 
     // Hash of the active access token's Jti
-    private byte[] accessTokenJtiHash;
+    private SecureBuffer accessTokenJtiHash;
 
     private User user;
 
