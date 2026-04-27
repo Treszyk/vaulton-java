@@ -9,5 +9,4 @@ class VaultonapiApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
