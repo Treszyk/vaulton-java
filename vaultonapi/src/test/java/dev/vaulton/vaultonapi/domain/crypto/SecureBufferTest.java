@@ -2,6 +2,8 @@ package dev.vaulton.vaultonapi.domain.crypto;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SecureBufferTest {
@@ -42,7 +44,7 @@ class SecureBufferTest {
         try (SecureBuffer secureBuffer = new SecureBuffer(new byte[] {1, 2, 3, 4})) {
             assertArrayEquals(new byte[] {1, 2, 3, 4}, secureBuffer.bytes());
             secureBuffer.wipe();
-            assertArrayEquals(new byte[] {0, 0, 0, 0}, secureBuffer.bytes());
+            assertThrows(IllegalStateException.class, secureBuffer::bytes);
         }
     }
 
@@ -53,7 +55,7 @@ class SecureBufferTest {
             ref = buffer;
             assertEquals(ref, buffer);
         }
-        assertArrayEquals(new byte[] {0, 0, 0, 0}, ref.bytes());
+        assertThrows(IllegalStateException.class, ref::bytes);
     }
 
     @Test
@@ -91,4 +93,42 @@ class SecureBufferTest {
             }
         }
     }
+
+    @Test
+    void shouldThrowWhenAccessingWipedBuffer() {
+        try (var buffer = new SecureBuffer(new byte[]{1, 2})) {
+            buffer.wipe();
+
+            assertThrows(IllegalStateException.class, buffer::bytes);
+            assertThrows(IllegalStateException.class, buffer::length);
+            
+            assertEquals(buffer, buffer); 
+            assertNotEquals(buffer, new SecureBuffer(new byte[]{1, 2}));
+        }
+    }
+
+    @Test
+    void shouldKeepHashCodeStableAfterWipe() {
+        try (SecureBuffer buffer = new SecureBuffer(new byte[]{9, 9, 9})) {
+            int beforeWipe = buffer.hashCode();
+
+            buffer.wipe();
+
+            assertEquals(beforeWipe, buffer.hashCode());
+        }
+    }
+
+    @Test
+    void shouldRemainAddressableInHashMapAfterWipe() {
+        SecureBuffer buffer = new SecureBuffer(new byte[] { 7, 7, 7 });
+        HashMap<SecureBuffer, String> map = new HashMap<>();
+        map.put(buffer, "value");
+
+        buffer.wipe();
+        assertEquals("value", map.get(buffer));
+        assertEquals("value", map.remove(buffer));
+        assertNull(map.get(new SecureBuffer(new byte[]{7, 7, 7})));
+        assertTrue(map.isEmpty());
+    }
+
 }
