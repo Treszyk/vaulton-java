@@ -5,13 +5,14 @@ package dev.vaulton.vaultonapi.domain.crypto;
  * Performs defensive cloning on both intake and output to prevent reference leakage
  * and accidental mutation of sensitive cryptographic material.
  */
-public record SecureBuffer(byte[] bytes) {
-    public SecureBuffer {
+public final class SecureBuffer {
+    private final byte[] bytes;
+
+    public SecureBuffer(byte[] bytes) {
         if (bytes == null) throw new IllegalArgumentException("Bytes cannot be null");
-        bytes = bytes.clone();
+        this.bytes = bytes.clone();
     }
 
-    @Override
     public byte[] bytes() {
         return bytes.clone();
     }
