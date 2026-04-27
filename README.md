@@ -16,6 +16,11 @@ Vaulton is a zero-knowledge password manager designed around an anonymous Accoun
 
 ## Development Setup
 
+### Prerequisites
+
+- Java 25 (LTS)
+- Docker & Docker Compose
+
 The project uses Docker Compose to orchestrate the backend, frontend, and PostgreSQL database.
 
 ### Quick Start
