@@ -1,11 +1,14 @@
 package dev.vaulton.vaultonapi.domain.crypto;
 
+import java.util.Arrays;
+
 /**
- * A Value Object wrapping a byte array to ensure immutability and value-based equality.
+ * A Value Object wrapping a byte array with controlled zeroization (wiping) capabilities.
  * Performs defensive cloning on both intake and output to prevent reference leakage
- * and accidental mutation of sensitive cryptographic material.
+ * while allowing for safe memory clearing of sensitive cryptographic material.
  */
-public final class SecureBuffer {
+@SuppressWarnings("ClassCanBeRecord")
+public final class SecureBuffer implements AutoCloseable {
     private final byte[] bytes;
 
     public SecureBuffer(byte[] bytes) {
@@ -21,18 +24,26 @@ public final class SecureBuffer {
         return bytes.length;
     }
 
+    public void wipe() {
+        Arrays.fill(this.bytes, (byte) 0x00);
+    }
+
+    @Override
+    public void close() {
+        this.wipe();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SecureBuffer that = (SecureBuffer) o;
-        return java.util.Arrays.equals(bytes, that.bytes);
+        return Arrays.equals(bytes, that.bytes);
     }
 
     @Override
     public int hashCode() {
         return java.util.Arrays.hashCode(bytes);
     }
-
 }
 
