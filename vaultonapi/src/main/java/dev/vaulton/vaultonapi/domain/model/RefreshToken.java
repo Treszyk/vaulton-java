@@ -4,6 +4,7 @@ import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -17,13 +18,13 @@ import java.util.UUID;
 @Getter @Setter
 public class RefreshToken {
     private UUID id;
-    private UUID userId;
+    @NonNull private UUID userId;
 
     // Hash of the opaque refresh token
-    private SecureBuffer tokenHash;
+    @NonNull private SecureBuffer tokenHash;
 
-    private Instant createdAt;
-    private Instant expiresAt;
+    @NonNull private Instant createdAt;
+    @NonNull private Instant expiresAt;
     private Instant revokedAt;
     private RevocationReason revocationReason;
 
