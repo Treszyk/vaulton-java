@@ -2,7 +2,6 @@ package dev.vaulton.vaultonapi.domain.model;
 
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -30,7 +29,7 @@ public class RefreshToken implements AutoCloseable {
     private RevocationReason revocationReason;
 
     // Hash of the active access token's Jti
-    @NotNull private SecureBuffer accessTokenJtiHash;
+    @NonNull private SecureBuffer accessTokenJtiHash;
 
     @NonNull private User user;
 
