@@ -3,6 +3,7 @@ package dev.vaulton.vaultonapi.domain.model;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -15,10 +16,10 @@ import java.util.UUID;
 @Getter @Setter
 public class Entry {
     private UUID id;
-    private UUID userId;
+    @NonNull private UUID userId;
 
     // Encrypted payload AES-GCM
-    private EncryptedValue payload;
+    @NonNull private EncryptedValue payload;
 
     // metadata
     private Instant createdAt;
