@@ -5,6 +5,7 @@ import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 
 import java.time.Instant;
@@ -20,17 +21,17 @@ public class User {
     private UUID id;
 
     // Auth
-    private SecureBuffer verifier;
-    private SecureBuffer S_verifier; // I really want to keep this crypto salt naming...
+    @NonNull private SecureBuffer verifier;
+    @NonNull private SecureBuffer S_verifier; // I really want to keep this crypto salt naming...
 
     // Admin (Elevated actions)
     private SecureBuffer adminVerifier;
     private SecureBuffer S_adminVerifier;
 
     // Initial KDF salt
-    private SecureBuffer S_pwd;
+    @NonNull private SecureBuffer S_pwd;
 
-    private KdfMode kdfMode;
+    @NonNull private KdfMode kdfMode;
 
     // Master key wraps
     private EncryptedValue mkWrapPwd;
@@ -41,7 +42,7 @@ public class User {
     private SecureBuffer S_rk;
 
     // Crypto schema version (always 1 in this prototype)
-    private Integer cryptoSchemaVer;
+    @NonNull private Integer cryptoSchemaVer;
 
     // metadata
     private Instant createdAt;
