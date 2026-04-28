@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("resource")
 class EncryptedValueTest {
     private SecureBuffer getMockSecureBuffer(int length) {
         return new SecureBuffer(new String(new char[length]).replace('\0', 'a').getBytes(StandardCharsets.UTF_8)); // 4
