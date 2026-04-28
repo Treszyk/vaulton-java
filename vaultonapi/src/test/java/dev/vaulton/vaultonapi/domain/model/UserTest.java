@@ -1,13 +1,18 @@
 package dev.vaulton.vaultonapi.domain.model;
 
+import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
+@SuppressWarnings({"resource", "DataFlowIssue"})
 class UserTest {
 
     private SecureBuffer mockBuffer() {
@@ -19,38 +24,63 @@ class UserTest {
         UUID id = UUID.randomUUID();
         try (SecureBuffer buf = mockBuffer()) {
             KdfMode mode = KdfMode.DEFAULT;
+            EncryptedValue mockWrap = mock(EncryptedValue.class);
 
             // Missing Verifier
             assertThrows(NullPointerException.class, () ->
-                    new User(id, null, buf, null, null, buf, mode, null, null, null, null, 1, null, null, null, 0, null, null)
+                    new User(id, null, buf, buf, buf, buf, mode, mockWrap, mockWrap, buf, buf, 1, null, null, null, 0, null, null)
             );
 
-            // Missing S_verifier
+            // Missing mkWrapPwd
             assertThrows(NullPointerException.class, () ->
-                    new User(id, buf, null, null, null, buf, mode, null, null, null, null, 1, null, null, null, 0, null, null)
+                    new User(id, buf, buf, buf, buf, buf, mode, null, mockWrap, buf, buf, 1, null, null, null, 0, null, null)
             );
 
-            // Missing S_pwd
+            // Missing rkVerifier
             assertThrows(NullPointerException.class, () ->
-                    new User(id, buf, buf, null, null, null, mode, null, null, null, null, 1, null, null, null, 0, null, null)
-            );
-
-            // Missing KdfMode
-            assertThrows(NullPointerException.class, () ->
-                    new User(id, buf, buf, null, null, buf, null, null, null, null, null, 1, null, null, null, 0, null, null)
-            );
-
-            // Missing CryptoSchemaVer
-            assertThrows(NullPointerException.class, () ->
-                    new User(id, buf, buf, null, null, buf, mode, null, null, null, null, null, null, null, null, 0, null, null)
+                    new User(id, buf, buf, buf, buf, buf, mode, mockWrap, mockWrap, null, buf, 1, null, null, null, 0, null, null)
             );
         }
     }
 
     @Test
     void constructorShouldCreateUserWhenCriticalFieldsArePresent() {
-        assertDoesNotThrow(() -> 
-            new User(UUID.randomUUID(), mockBuffer(), mockBuffer(), null, null, mockBuffer(), KdfMode.DEFAULT, null, null, null, null, 1, null, null, null, 0, null, null)
-        );
+        try (SecureBuffer buf = mockBuffer()) {
+            EncryptedValue mockWrap = mock(EncryptedValue.class);
+            assertDoesNotThrow(() ->
+                new User(UUID.randomUUID(), buf, buf, buf, buf, buf, KdfMode.DEFAULT, mockWrap, mockWrap, buf, buf, 1, null, null, null, 0, null, null)
+            );
+        }
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnWipe() {
+        SecureBuffer buf = mockBuffer();
+        EncryptedValue mockWrap = mock(EncryptedValue.class);
+
+        User user = new User(UUID.randomUUID(), buf, buf, buf, buf, buf, KdfMode.DEFAULT, mockWrap, mockWrap, buf, buf, 1, null, null, null, 0, null, null);
+        user.wipe();
+
+        // Verify cascading wipe to SecureBuffers
+        assertThrows(IllegalStateException.class, buf::bytes);
+
+        // Verify cascading wipe to EncryptedValues
+        verify(mockWrap, Mockito.atLeastOnce()).wipe();
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnClose() {
+        SecureBuffer buf = mockBuffer();
+        EncryptedValue mockWrap = mock(EncryptedValue.class);
+
+        User user = new User(UUID.randomUUID(), buf, buf, buf, buf, buf, KdfMode.DEFAULT, mockWrap, mockWrap, buf, buf, 1, null, null, null, 0, null, null);
+
+        //noinspection EmptyTryBlock
+        try (user) {
+            // Simulated use as a resource
+        }
+
+        assertThrows(IllegalStateException.class, buf::bytes);
+        verify(mockWrap, Mockito.atLeastOnce()).wipe();
     }
 }

@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 @AllArgsConstructor
 @Getter @Setter
-public class Entry {
+public class Entry implements AutoCloseable {
     private UUID id;
     @NonNull private UUID userId;
 
@@ -24,4 +24,11 @@ public class Entry {
     // metadata
     private Instant createdAt;
     private Instant updatedAt;
+
+    public void wipe() {
+        payload.wipe();
+    }
+
+    @Override
+    public void close() { wipe(); }
 }

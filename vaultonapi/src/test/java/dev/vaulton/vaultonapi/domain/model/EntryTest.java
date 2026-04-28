@@ -9,6 +9,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@SuppressWarnings("resource")
 class EntryTest {
 
     private SecureBuffer mockBuffer(int size) {
@@ -43,5 +44,31 @@ class EntryTest {
         assertDoesNotThrow(() ->
                 new Entry(UUID.randomUUID(), UUID.randomUUID(), mockPayload(), null, null)
         );
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnWipe() {
+        EncryptedValue payload = mockPayload();
+
+        Entry entry = new Entry(UUID.randomUUID(), UUID.randomUUID(), payload, null, null);
+        entry.wipe();
+
+        assertThrows(IllegalStateException.class, () -> entry.getPayload().cipherText().bytes());
+        assertThrows(IllegalStateException.class, () -> payload.cipherText().bytes());
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnClose() {
+        EncryptedValue payload = mockPayload();
+
+        Entry entry = new Entry(UUID.randomUUID(), UUID.randomUUID(), payload, null, null);
+
+        //noinspection EmptyTryBlock
+        try (entry) {
+            // Simulated use as a resource
+        }
+
+        assertThrows(IllegalStateException.class, () -> entry.getPayload().cipherText().bytes());
+        assertThrows(IllegalStateException.class, () -> payload.cipherText().bytes());
     }
 }

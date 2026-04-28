@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 @AllArgsConstructor
 @Getter @Setter
-public class RefreshToken {
+public class RefreshToken implements AutoCloseable {
     private UUID id;
     @NonNull private UUID userId;
 
@@ -29,12 +29,25 @@ public class RefreshToken {
     private RevocationReason revocationReason;
 
     // Hash of the active access token's Jti
-    private SecureBuffer accessTokenJtiHash;
+    @NonNull private SecureBuffer accessTokenJtiHash;
 
-    private User user;
+    @NonNull private User user;
 
     public boolean isActive() {
-        if (expiresAt == null) return false;
-        return revokedAt == null && expiresAt.isAfter(Instant.now());
+        return revokedAt == null && expiresAt.isAfter(Instant.now()) && revocationReason == null;
     }
+
+    public void revoke(RevocationReason reason) {
+        if (revokedAt != null) throw new IllegalStateException("This token was already revoked");
+        revocationReason = reason;
+        revokedAt = Instant.now();
+    }
+
+    public void wipe() {
+        tokenHash.wipe();
+        accessTokenJtiHash.wipe();
+    }
+
+    @Override
+    public void close() { wipe(); }
 }

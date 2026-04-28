@@ -9,7 +9,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
+@SuppressWarnings({"resource", "DataFlowIssue"})
 class RefreshTokenTest {
 
     private SecureBuffer mockBuffer() {
@@ -24,32 +26,32 @@ class RefreshTokenTest {
 
             // Missing UserID
             assertThrows(NullPointerException.class, () ->
-                    new RefreshToken(null, null, buf, now, now, null, null, null, null)
+                    new RefreshToken(null, null, buf, now, now, null, null, buf, mock(User.class))
             );
 
             // Missing TokenHash
             assertThrows(NullPointerException.class, () ->
-                    new RefreshToken(null, userId, null, now, now, null, null, null, null)
+                    new RefreshToken(null, userId, null, now, now, null, null, buf, mock(User.class))
             );
 
             // Missing CreatedAt
             assertThrows(NullPointerException.class, () ->
-                    new RefreshToken(null, userId, buf, null, now, null, null, null, null)
+                    new RefreshToken(null, userId, buf, null, now, null, null, buf, mock(User.class))
             );
 
             // Missing ExpiresAt
             assertThrows(NullPointerException.class, () ->
-                    new RefreshToken(null, userId, buf, now, null, null, null, null, null)
+                    new RefreshToken(null, userId, buf, now, null, null, null, buf, mock(User.class))
             );
         }
     }
 
     @Test
     void isActiveShouldReturnTrueWhenNotExpiredAndNotRevoked() {
-        try (SecureBuffer buf = mockBuffer()) {
+        try (SecureBuffer buf = mockBuffer(); SecureBuffer jti = mockBuffer()) {
             Instant future = Instant.now().plus(1, ChronoUnit.DAYS);
             RefreshToken token = new RefreshToken(
-                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, null, null, null, null
+                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, null, null, jti, mock(User.class)
             );
 
             assertTrue(token.isActive());
@@ -58,10 +60,10 @@ class RefreshTokenTest {
 
     @Test
     void isActiveShouldReturnFalseWhenExpired() {
-        try (SecureBuffer buf = mockBuffer()) {
+        try (SecureBuffer buf = mockBuffer(); SecureBuffer jti = mockBuffer()) {
             Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
             RefreshToken token = new RefreshToken(
-                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), past, null, null, null, null
+                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), past, null, null, jti, mock(User.class)
             );
 
             assertFalse(token.isActive());
@@ -70,13 +72,69 @@ class RefreshTokenTest {
 
     @Test
     void isActiveShouldReturnFalseWhenRevoked() {
-        try (SecureBuffer buf = mockBuffer()) {
+        try (SecureBuffer buf = mockBuffer(); SecureBuffer jti = mockBuffer()) {
             Instant future = Instant.now().plus(1, ChronoUnit.DAYS);
             RefreshToken token = new RefreshToken(
-                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, Instant.now(), RevocationReason.REGULAR, null, null
+                    UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, null, null, jti, mock(User.class)
             );
 
+            token.revoke(RevocationReason.REGULAR);
+
             assertFalse(token.isActive());
+            assertEquals(RevocationReason.REGULAR, token.getRevocationReason());
         }
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnWipe() {
+        SecureBuffer tokenHash = new SecureBuffer(new byte[] {1, 2, 3});
+        SecureBuffer jtiHash = new SecureBuffer(new byte[] {3, 2, 1});
+
+        RefreshToken refreshToken = new RefreshToken(
+                null,
+                UUID.randomUUID(),
+                tokenHash,
+                Instant.now(),
+                Instant.now().plus(10, ChronoUnit.MINUTES),
+                null,
+                null,
+                jtiHash,
+                mock(User.class)
+        );
+
+        refreshToken.wipe();
+
+        assertThrows(IllegalStateException.class, () -> refreshToken.getTokenHash().bytes());
+        assertThrows(IllegalStateException.class, () -> refreshToken.getAccessTokenJtiHash().bytes());
+        assertThrows(IllegalStateException.class, tokenHash::bytes);
+        assertThrows(IllegalStateException.class, jtiHash::bytes);
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnClose() {
+        SecureBuffer tokenHash = new SecureBuffer(new byte[] {1, 2, 3});
+        SecureBuffer jtiHash = new SecureBuffer(new byte[] {3, 2, 1});
+
+        RefreshToken refreshToken = new RefreshToken(
+                null,
+                UUID.randomUUID(),
+                tokenHash,
+                Instant.now(),
+                Instant.now().plus(10, ChronoUnit.MINUTES),
+                null,
+                null,
+                jtiHash,
+                mock(User.class)
+        );
+
+        //noinspection EmptyTryBlock
+        try (refreshToken) {
+            // Simulated use as a resource
+        }
+
+        assertThrows(IllegalStateException.class, () -> refreshToken.getTokenHash().bytes());
+        assertThrows(IllegalStateException.class, () -> refreshToken.getAccessTokenJtiHash().bytes());
+        assertThrows(IllegalStateException.class, tokenHash::bytes);
+        assertThrows(IllegalStateException.class, jtiHash::bytes);
     }
 }

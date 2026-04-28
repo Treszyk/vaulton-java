@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 @AllArgsConstructor
 @Getter @Setter
-public class User {
+public class User implements AutoCloseable {
     private UUID id;
 
     // Auth
@@ -25,8 +25,8 @@ public class User {
     @NonNull private SecureBuffer S_verifier; // I really want to keep this crypto salt naming...
 
     // Admin (Elevated actions)
-    private SecureBuffer adminVerifier;
-    private SecureBuffer S_adminVerifier;
+    @NonNull private SecureBuffer adminVerifier;
+    @NonNull private SecureBuffer S_adminVerifier;
 
     // Initial KDF salt
     @NonNull private SecureBuffer S_pwd;
@@ -34,12 +34,12 @@ public class User {
     @NonNull private KdfMode kdfMode;
 
     // Master key wraps
-    private EncryptedValue mkWrapPwd;
-    private EncryptedValue mkWrapRk;
+    @NonNull private EncryptedValue mkWrapPwd;
+    @NonNull private EncryptedValue mkWrapRk;
 
     // Recovery
-    private SecureBuffer rkVerifier;
-    private SecureBuffer S_rk;
+    @NonNull private SecureBuffer rkVerifier;
+    @NonNull private SecureBuffer S_rk;
 
     // Crypto schema version (always 1 in this prototype)
     @NonNull private Integer cryptoSchemaVer;
@@ -51,4 +51,15 @@ public class User {
     private Integer failedLoginCount;
     private Instant lastFailedLoginAt;
     private Instant lockedUntil;
+
+    public void wipe() {
+        verifier.wipe(); S_verifier.wipe();
+        adminVerifier.wipe(); S_adminVerifier.wipe();
+        S_pwd.wipe();
+        mkWrapPwd.wipe(); mkWrapRk.wipe();
+        rkVerifier.wipe(); S_rk.wipe();
+    }
+
+    @Override
+    public void close() { wipe(); }
 }

@@ -45,4 +45,42 @@ class EncryptedValueTest {
             new EncryptedValue(mockNonce(true), mockCipherText(true), mockTag(true));
         });
     }
+
+    @Test
+    void shouldWipeInternalBuffersOnWipe() {
+        SecureBuffer nonce = mockNonce(true);
+        SecureBuffer ciphertext = mockCipherText(true);
+        SecureBuffer tag = mockTag(true);
+
+        EncryptedValue encryptedValue = new EncryptedValue(nonce, ciphertext, tag);
+        encryptedValue.wipe();
+
+        assertThrows(IllegalStateException.class, () -> encryptedValue.nonce().bytes());
+        assertThrows(IllegalStateException.class, () -> encryptedValue.cipherText().bytes());
+        assertThrows(IllegalStateException.class, () -> encryptedValue.tag().bytes());
+        assertThrows(IllegalStateException.class, nonce::bytes);
+        assertThrows(IllegalStateException.class, ciphertext::bytes);
+        assertThrows(IllegalStateException.class, tag::bytes);
+    }
+
+    @Test
+    void shouldWipeInternalBuffersOnClose() {
+        SecureBuffer nonce = mockNonce(true);
+        SecureBuffer ciphertext = mockCipherText(true);
+        SecureBuffer tag = mockTag(true);
+
+        EncryptedValue encryptedValue = new EncryptedValue(nonce, ciphertext, tag);
+
+        //noinspection EmptyTryBlock
+        try (encryptedValue) {
+            // Simulated use as a resource
+        }
+
+        assertThrows(IllegalStateException.class, () -> encryptedValue.nonce().bytes());
+        assertThrows(IllegalStateException.class, () -> encryptedValue.cipherText().bytes());
+        assertThrows(IllegalStateException.class, () -> encryptedValue.tag().bytes());
+        assertThrows(IllegalStateException.class, nonce::bytes);
+        assertThrows(IllegalStateException.class, ciphertext::bytes);
+        assertThrows(IllegalStateException.class, tag::bytes);
+    }
 }
