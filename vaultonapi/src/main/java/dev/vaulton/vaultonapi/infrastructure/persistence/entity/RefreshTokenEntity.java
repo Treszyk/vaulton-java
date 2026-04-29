@@ -38,7 +38,6 @@ public class RefreshTokenEntity {
   @Column(name = "RevokedAt")
   private Instant revokedAt;
 
-  @Enumerated(EnumType.ORDINAL)
   @Column(name = "RevocationReason")
   private RevocationReason revocationReason;
 }
