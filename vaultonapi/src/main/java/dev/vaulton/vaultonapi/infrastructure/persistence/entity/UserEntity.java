@@ -32,7 +32,6 @@ public class UserEntity {
   @Column(name = "S_Pwd", nullable = false)
   private byte[] sPwd;
 
-  @Enumerated(EnumType.ORDINAL)
   @Column(name = "KdfMode", nullable = false)
   private KdfMode kdfMode;
 
@@ -50,9 +49,11 @@ public class UserEntity {
 
   @Embedded
   @AttributeOverrides({
-    @AttributeOverride(name = "nonce", column = @Column(name = "MkWrapRk_Nonce")),
-    @AttributeOverride(name = "cipherText", column = @Column(name = "MkWrapRk_CipherText")),
-    @AttributeOverride(name = "tag", column = @Column(name = "MkWrapRk_Tag"))
+    @AttributeOverride(name = "nonce", column = @Column(name = "MkWrapRk_Nonce", nullable = false)),
+    @AttributeOverride(
+        name = "cipherText",
+        column = @Column(name = "MkWrapRk_CipherText", nullable = false)),
+    @AttributeOverride(name = "tag", column = @Column(name = "MkWrapRk_Tag", nullable = false))
   })
   private JpaEncryptedValue mkWrapRk;
 
