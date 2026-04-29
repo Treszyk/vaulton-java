@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.infrastructure.persistance.entity;
+package dev.vaulton.vaultonapi.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

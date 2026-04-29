@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.infrastructure.persistance.entity;
+package dev.vaulton.vaultonapi.infrastructure.persistence.entity;
 
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import jakarta.persistence.*;
@@ -13,7 +13,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
-  @Id private UUID id;
+  @Id
+  @Column(name = "Id")
+  private UUID id;
 
   @Column(name = "Verifier", nullable = false)
   private byte[] verifier;
