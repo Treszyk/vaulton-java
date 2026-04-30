@@ -22,14 +22,14 @@ public class User implements AutoCloseable {
 
   // Auth
   @NonNull private SecureBuffer verifier;
-  @NonNull private SecureBuffer S_verifier; // I really want to keep this crypto salt naming...
+  @NonNull private SecureBuffer saltVerifier;
 
   // Admin (Elevated actions)
   @NonNull private SecureBuffer adminVerifier;
-  @NonNull private SecureBuffer S_adminVerifier;
+  @NonNull private SecureBuffer saltAdminVerifier;
 
   // Initial KDF salt
-  @NonNull private SecureBuffer S_pwd;
+  @NonNull private SecureBuffer saltPwd;
 
   @NonNull private KdfMode kdfMode;
 
@@ -39,7 +39,7 @@ public class User implements AutoCloseable {
 
   // Recovery
   @NonNull private SecureBuffer rkVerifier;
-  @NonNull private SecureBuffer S_rk;
+  @NonNull private SecureBuffer saltRk;
 
   // Crypto schema version (always 1 in this prototype)
   @NonNull private Integer cryptoSchemaVer;
@@ -54,14 +54,14 @@ public class User implements AutoCloseable {
 
   public void wipe() {
     verifier.wipe();
-    S_verifier.wipe();
+    saltVerifier.wipe();
     adminVerifier.wipe();
-    S_adminVerifier.wipe();
-    S_pwd.wipe();
+    saltAdminVerifier.wipe();
+    saltPwd.wipe();
     mkWrapPwd.wipe();
     mkWrapRk.wipe();
     rkVerifier.wipe();
-    S_rk.wipe();
+    saltRk.wipe();
   }
 
   @Override
