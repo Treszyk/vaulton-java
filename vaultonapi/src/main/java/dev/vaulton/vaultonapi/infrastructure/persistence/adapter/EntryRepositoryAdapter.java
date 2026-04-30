@@ -33,6 +33,6 @@ public class EntryRepositoryAdapter implements EntryRepository {
 
   @Override
   public boolean deleteByIdAndUserId(UUID entryId, UUID userId) {
-    return jpaRepository.deleteByIdAndUserId(entryId, userId);
+    return jpaRepository.deleteByIdAndUserId(entryId, userId) > 0;
   }
 }

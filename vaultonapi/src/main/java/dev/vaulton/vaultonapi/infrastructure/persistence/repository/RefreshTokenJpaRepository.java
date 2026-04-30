@@ -18,7 +18,7 @@ public interface RefreshTokenJpaRepository extends JpaRepository<RefreshTokenEnt
   List<RefreshTokenEntity> findAllByUserId(UUID userId);
 
   @Transactional
-  @Modifying
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
   @Query(
       "UPDATE RefreshTokenEntity r SET r.revokedAt = :revokedAt, r.revocationReason = :reason "
           + "WHERE r.userId = :userId AND r.revokedAt IS NULL")
