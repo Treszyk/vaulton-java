@@ -1,7 +1,6 @@
 package dev.vaulton.vaultonapi.domain.model;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
@@ -52,14 +51,7 @@ class RefreshTokenTest {
       Instant future = Instant.now().plus(1, ChronoUnit.DAYS);
       RefreshToken token =
           new RefreshToken(
-              UUID.randomUUID(),
-              UUID.randomUUID(),
-              buf,
-              Instant.now(),
-              future,
-              null,
-              null,
-              jti);
+              UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, null, null, jti);
 
       assertTrue(token.isActive());
     }
@@ -72,14 +64,7 @@ class RefreshTokenTest {
       Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
       RefreshToken token =
           new RefreshToken(
-              UUID.randomUUID(),
-              UUID.randomUUID(),
-              buf,
-              Instant.now(),
-              past,
-              null,
-              null,
-              jti);
+              UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), past, null, null, jti);
 
       assertFalse(token.isActive());
     }
@@ -92,14 +77,7 @@ class RefreshTokenTest {
       Instant future = Instant.now().plus(1, ChronoUnit.DAYS);
       RefreshToken token =
           new RefreshToken(
-              UUID.randomUUID(),
-              UUID.randomUUID(),
-              buf,
-              Instant.now(),
-              future,
-              null,
-              null,
-              jti);
+              UUID.randomUUID(), UUID.randomUUID(), buf, Instant.now(), future, null, null, jti);
 
       token.revoke(RevocationReason.REGULAR);
 
