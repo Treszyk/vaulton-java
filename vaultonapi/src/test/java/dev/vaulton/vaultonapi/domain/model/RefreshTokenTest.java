@@ -26,22 +26,22 @@ class RefreshTokenTest {
       // Missing UserID
       assertThrows(
           NullPointerException.class,
-          () -> new RefreshToken(null, null, buf, now, now, null, null, buf, mock(User.class)));
+          () -> new RefreshToken(null, null, buf, now, now, null, null, buf));
 
       // Missing TokenHash
       assertThrows(
           NullPointerException.class,
-          () -> new RefreshToken(null, userId, null, now, now, null, null, buf, mock(User.class)));
+          () -> new RefreshToken(null, userId, null, now, now, null, null, buf));
 
       // Missing CreatedAt
       assertThrows(
           NullPointerException.class,
-          () -> new RefreshToken(null, userId, buf, null, now, null, null, buf, mock(User.class)));
+          () -> new RefreshToken(null, userId, buf, null, now, null, null, buf));
 
       // Missing ExpiresAt
       assertThrows(
           NullPointerException.class,
-          () -> new RefreshToken(null, userId, buf, now, null, null, null, buf, mock(User.class)));
+          () -> new RefreshToken(null, userId, buf, now, null, null, null, buf));
     }
   }
 
@@ -59,8 +59,7 @@ class RefreshTokenTest {
               future,
               null,
               null,
-              jti,
-              mock(User.class));
+              jti);
 
       assertTrue(token.isActive());
     }
@@ -80,8 +79,7 @@ class RefreshTokenTest {
               past,
               null,
               null,
-              jti,
-              mock(User.class));
+              jti);
 
       assertFalse(token.isActive());
     }
@@ -101,8 +99,7 @@ class RefreshTokenTest {
               future,
               null,
               null,
-              jti,
-              mock(User.class));
+              jti);
 
       token.revoke(RevocationReason.REGULAR);
 
@@ -125,8 +122,7 @@ class RefreshTokenTest {
             Instant.now().plus(10, ChronoUnit.MINUTES),
             null,
             null,
-            jtiHash,
-            mock(User.class));
+            jtiHash);
 
     refreshToken.wipe();
 
@@ -150,8 +146,7 @@ class RefreshTokenTest {
             Instant.now().plus(10, ChronoUnit.MINUTES),
             null,
             null,
-            jtiHash,
-            mock(User.class));
+            jtiHash);
 
     //noinspection EmptyTryBlock
     try (refreshToken) {

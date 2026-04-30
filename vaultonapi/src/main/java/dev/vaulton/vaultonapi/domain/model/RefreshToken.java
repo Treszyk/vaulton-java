@@ -31,8 +31,6 @@ public class RefreshToken implements AutoCloseable {
   // Hash of the active access token's Jti
   @NonNull private SecureBuffer accessTokenJtiHash;
 
-  @NonNull private User user;
-
   public boolean isActive() {
     return revokedAt == null && expiresAt.isAfter(Instant.now()) && revocationReason == null;
   }
