@@ -21,16 +21,16 @@ public class UserEntity {
   private byte[] verifier;
 
   @Column(name = "S_Verifier", nullable = false)
-  private byte[] sVerifier;
+  private byte[] saltVerifier;
 
   @Column(name = "AdminVerifier", nullable = false)
   private byte[] adminVerifier;
 
   @Column(name = "S_AdminVerifier", nullable = false)
-  private byte[] sAdminVerifier;
+  private byte[] saltAdminVerifier;
 
   @Column(name = "S_Pwd", nullable = false)
-  private byte[] sPwd;
+  private byte[] saltPwd;
 
   @Column(name = "KdfMode", nullable = false)
   private KdfMode kdfMode;
@@ -57,11 +57,11 @@ public class UserEntity {
   })
   private JpaEncryptedValue mkWrapRk;
 
-  @Column(name = "RkVerifier")
+  @Column(name = "RkVerifier", nullable = false)
   private byte[] rkVerifier;
 
-  @Column(name = "S_Rk")
-  private byte[] sRk;
+  @Column(name = "S_Rk", nullable = false)
+  private byte[] saltRk;
 
   @Column(name = "CryptoSchemaVer", nullable = false)
   private Integer cryptoSchemaVer;
