@@ -26,7 +26,7 @@ public class RefreshTokenEntity {
   @Column(name = "TokenHash", nullable = false)
   private byte[] tokenHash;
 
-  @Column(name = "AccessTokenJtiHash")
+  @Column(name = "AccessTokenJtiHash", nullable = false)
   private byte[] accessTokenJtiHash;
 
   @Column(name = "CreatedAt", nullable = false)

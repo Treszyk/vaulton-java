@@ -57,10 +57,10 @@ public class UserEntity {
   })
   private JpaEncryptedValue mkWrapRk;
 
-  @Column(name = "RkVerifier")
+  @Column(name = "RkVerifier", nullable = false)
   private byte[] rkVerifier;
 
-  @Column(name = "S_Rk")
+  @Column(name = "S_Rk", nullable = false)
   private byte[] saltRk;
 
   @Column(name = "CryptoSchemaVer", nullable = false)
