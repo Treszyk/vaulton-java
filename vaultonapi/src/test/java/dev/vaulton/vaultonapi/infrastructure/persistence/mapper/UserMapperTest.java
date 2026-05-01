@@ -34,7 +34,7 @@ class UserMapperTest {
             new byte[] {7, 8, 9},
             new byte[] {10, 11, 12},
             new byte[] {13, 14, 15},
-            KdfMode.DEFAULT,
+            1,
             new JpaEncryptedValue(new byte[12], new byte[] {16, 17}, new byte[16]),
             new JpaEncryptedValue(new byte[12], new byte[] {18, 19}, new byte[16]),
             new byte[] {20, 21},
@@ -52,7 +52,7 @@ class UserMapperTest {
     assertNotNull(mappedUser);
     assertAll(
         () -> assertEquals(testUser.getId(), mappedUser.getId()),
-        () -> assertEquals(testUser.getKdfMode(), mappedUser.getKdfMode()),
+        () -> assertEquals(testUser.getKdfMode(), mappedUser.getKdfMode().getValue()),
         () -> assertEquals(testUser.getCryptoSchemaVer(), mappedUser.getCryptoSchemaVer()),
         () -> assertEquals(testUser.getCreatedAt(), mappedUser.getCreatedAt()),
         () -> assertEquals(testUser.getUpdatedAt(), mappedUser.getUpdatedAt()),
@@ -114,7 +114,7 @@ class UserMapperTest {
     assertNotNull(mappedUser);
     assertAll(
         () -> assertEquals(testUser.getId(), mappedUser.getId()),
-        () -> assertEquals(testUser.getKdfMode(), mappedUser.getKdfMode()),
+        () -> assertEquals(testUser.getKdfMode().getValue(), mappedUser.getKdfMode()),
         () -> assertEquals(testUser.getCryptoSchemaVer(), mappedUser.getCryptoSchemaVer()),
         () -> assertEquals(testUser.getCreatedAt(), mappedUser.getCreatedAt()),
         () -> assertEquals(testUser.getUpdatedAt(), mappedUser.getUpdatedAt()),

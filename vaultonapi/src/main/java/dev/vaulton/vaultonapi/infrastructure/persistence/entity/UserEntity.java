@@ -1,6 +1,5 @@
 package dev.vaulton.vaultonapi.infrastructure.persistence.entity;
 
-import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -33,7 +32,7 @@ public class UserEntity {
   private byte[] saltPwd;
 
   @Column(name = "KdfMode", nullable = false)
-  private KdfMode kdfMode;
+  private int kdfMode;
 
   @Embedded
   @AttributeOverrides({
