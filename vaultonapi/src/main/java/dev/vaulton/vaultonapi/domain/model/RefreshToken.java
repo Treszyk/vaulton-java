@@ -15,21 +15,20 @@ import lombok.Setter;
  */
 @AllArgsConstructor
 @Getter
-@Setter
 public class RefreshToken implements AutoCloseable {
-  private UUID id;
-  @NonNull private UUID userId;
+  private final UUID id;
+  @NonNull private final UUID userId;
 
   // Hash of the opaque refresh token
-  @NonNull private SecureBuffer tokenHash;
+  @NonNull private final SecureBuffer tokenHash;
 
-  @NonNull private Instant createdAt;
-  @NonNull private Instant expiresAt;
-  private Instant revokedAt;
-  private RevocationReason revocationReason;
+  @NonNull private final Instant createdAt;
+  @NonNull private final Instant expiresAt;
+  @Setter private Instant revokedAt;
+  @Setter private RevocationReason revocationReason;
 
   // Hash of the active access token's Jti
-  @NonNull private SecureBuffer accessTokenJtiHash;
+  @NonNull private final SecureBuffer accessTokenJtiHash;
 
   public boolean isActive() {
     return revokedAt == null && expiresAt.isAfter(Instant.now()) && revocationReason == null;

@@ -11,17 +11,16 @@ import lombok.Setter;
 /** Represents a single encrypted item in the user's vault. */
 @AllArgsConstructor
 @Getter
-@Setter
 public class Entry implements AutoCloseable {
-  private UUID id;
-  @NonNull private UUID userId;
+  private final UUID id;
+  @NonNull private final UUID userId;
 
   // Encrypted payload AES-GCM
-  @NonNull private EncryptedValue payload;
+  @Setter @NonNull private EncryptedValue payload;
 
   // metadata
-  private Instant createdAt;
-  private Instant updatedAt;
+  private final Instant createdAt;
+  @Setter private Instant updatedAt;
 
   public void wipe() {
     payload.wipe();
