@@ -14,7 +14,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UserRegistrationServiceImpl implements UserRegistrationService {
-  private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {}
+  private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {
+    void wipe() {
+      stored.wipe();
+      salt.wipe();
+    }
+  }
 
   private final CryptoService cryptoService;
   private final UserRepository userRepository;
@@ -34,33 +39,46 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     if (input.cryptoSchemaVer() != 1)
       return new RegistrationResult.Failure(RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA);
 
-    if (userRepository.existsById(input.accountId()))
-      return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
-
+    // We perform the computation before checking for existence to equalize the
+    // response time and prevent Account ID enumeration (Timing Attack).
     SaltedVerifier login = compute(input.verifier());
     SaltedVerifier admin = compute(input.adminVerifier());
     SaltedVerifier rk = compute(input.rkVerifier());
 
-    User newUser =
-        User.builder()
-            .id(input.accountId())
-            .verifier(login.stored())
-            .saltVerifier(login.salt())
-            .adminVerifier(admin.stored())
-            .saltAdminVerifier(admin.salt())
-            .saltPwd(input.sPwd())
-            .kdfMode(input.kdfMode())
-            .mkWrapPwd(input.mkWrapPwd())
-            .mkWrapRk(input.mkWrapRk())
-            .rkVerifier(rk.stored())
-            .saltRk(rk.salt())
-            .cryptoSchemaVer(input.cryptoSchemaVer())
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
-            .failedLoginCount(0)
-            .build();
+    if (userRepository.existsById(input.accountId())) {
+      login.wipe();
+      admin.wipe();
+      rk.wipe();
+      return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
+    }
 
-    return new RegistrationResult.Success(newUser);
+    try {
+      User newUser =
+          User.builder()
+              .id(input.accountId())
+              .verifier(login.stored())
+              .saltVerifier(login.salt())
+              .adminVerifier(admin.stored())
+              .saltAdminVerifier(admin.salt())
+              .saltPwd(input.sPwd())
+              .kdfMode(input.kdfMode())
+              .mkWrapPwd(input.mkWrapPwd())
+              .mkWrapRk(input.mkWrapRk())
+              .rkVerifier(rk.stored())
+              .saltRk(rk.salt())
+              .cryptoSchemaVer(input.cryptoSchemaVer())
+              .createdAt(Instant.now())
+              .updatedAt(Instant.now())
+              .failedLoginCount(0)
+              .build();
+
+      return new RegistrationResult.Success(newUser);
+    } catch (Exception e) {
+      login.wipe();
+      admin.wipe();
+      rk.wipe();
+      throw e;
+    }
   }
 
   private SaltedVerifier compute(SecureBuffer raw) {
