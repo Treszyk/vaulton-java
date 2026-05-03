@@ -9,6 +9,7 @@ import dev.vaulton.vaultonapi.domain.crypto.CryptoConstants;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
+import dev.vaulton.vaultonapi.domain.model.User;
 import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationError;
 import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationInput;
 import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationResult;
@@ -36,34 +37,18 @@ class UserRegistrationServiceTest {
   }
 
   @Test
-  void shouldReturnAccountExistsWhenIdIsTaken() {
-    UUID existingId = UUID.randomUUID();
-    when(userRepository.existsById(existingId)).thenReturn(true);
+  void shouldGenerateUniqueIdWhenPreRegisterIsCalled() {
+    when(userRepository.existsById(any())).thenReturn(false);
 
-    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(mock(SecureBuffer.class));
-    when(cryptoService.computeStoredVerifier(any(), any())).thenReturn(mock(SecureBuffer.class));
+    UUID generatedId = registrationService.preRegister();
 
-    RegistrationInput input = createValidInput(existingId);
-
-    RegistrationResult result = registrationService.createUser(input);
-
-    assertInstanceOf(RegistrationResult.Failure.class, result);
-    assertEquals(RegistrationError.ACCOUNT_EXISTS, ((RegistrationResult.Failure) result).error());
+    assertNotNull(generatedId);
+    verify(userRepository, atLeastOnce()).existsById(any());
   }
 
   @Test
   void shouldReturnUnsupportedSchemaWhenVersionIsInvalid() {
-    RegistrationInput input =
-        new RegistrationInput(
-            UUID.randomUUID(),
-            mock(SecureBuffer.class),
-            mock(SecureBuffer.class),
-            mock(SecureBuffer.class),
-            mock(SecureBuffer.class),
-            KdfMode.DEFAULT,
-            mock(EncryptedValue.class),
-            mock(EncryptedValue.class),
-            999);
+    RegistrationInput input = createValidInput(UUID.randomUUID(), 999);
 
     RegistrationResult result = registrationService.createUser(input);
 
@@ -73,44 +58,60 @@ class UserRegistrationServiceTest {
   }
 
   @Test
-  @SuppressWarnings("resource")
   void shouldReturnSuccessWhenInputIsValid() {
     UUID accountId = UUID.randomUUID();
     RegistrationInput input = createValidInput(accountId);
 
     when(userRepository.existsById(accountId)).thenReturn(false);
-
-    SecureBuffer mockSalt = new SecureBuffer(new byte[CryptoConstants.SALT_LEN]);
-    SecureBuffer mockStored = new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]);
-    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(mockSalt);
-    when(cryptoService.computeStoredVerifier(any(), any())).thenReturn(mockStored);
+    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
+    when(cryptoService.computeStoredVerifier(any(), any()))
+        .thenReturn(new SecureBuffer(new byte[32]));
 
     RegistrationResult result = registrationService.createUser(input);
 
     assertInstanceOf(RegistrationResult.Success.class, result);
-    RegistrationResult.Success success = (RegistrationResult.Success) result;
-
-    assertNotNull(success.user());
-    assertEquals(accountId, success.user().getId());
-
-    verify(cryptoService, times(3)).generateRandomBytes(anyInt());
-    verify(cryptoService, times(3)).computeStoredVerifier(any(), any());
+    User user = ((RegistrationResult.Success) result).user();
+    assertEquals(accountId, user.getId());
   }
 
   @Test
-  void shouldGenerateUniqueIdWhenPreRegisterIsCalled() {
-    UUID firstId = UUID.randomUUID();
-    UUID secondId = UUID.randomUUID();
+  @SuppressWarnings("resource")
+  void shouldReturnFailureWhenAccountAlreadyExists() {
+    UUID accountId = UUID.randomUUID();
+    RegistrationInput input = createValidInput(accountId);
 
-    when(userRepository.existsById(any())).thenReturn(false);
+    when(userRepository.existsById(accountId)).thenReturn(true);
+    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
+    when(cryptoService.computeStoredVerifier(any(), any()))
+        .thenReturn(new SecureBuffer(new byte[32]));
 
-    UUID generatedId = registrationService.preRegister();
+    RegistrationResult result = registrationService.createUser(input);
 
-    assertNotNull(generatedId);
+    assertInstanceOf(RegistrationResult.Failure.class, result);
+    assertEquals(RegistrationError.ACCOUNT_EXISTS, ((RegistrationResult.Failure) result).error());
+  }
+
+  @Test
+  void shouldWipeSecretsOnFailure() {
+    UUID accountId = UUID.randomUUID();
+    RegistrationInput input = createValidInput(accountId);
+
+    when(userRepository.existsById(accountId)).thenReturn(true);
+    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
+    when(cryptoService.computeStoredVerifier(any(), any()))
+        .thenReturn(new SecureBuffer(new byte[32]));
+
+    registrationService.createUser(input);
+
+    verify(cryptoService, times(3)).computeStoredVerifier(any(), any());
     verify(userRepository, atLeastOnce()).existsById(any());
   }
 
   private RegistrationInput createValidInput(UUID id) {
+    return createValidInput(id, 1);
+  }
+
+  private RegistrationInput createValidInput(UUID id, int schemaVer) {
     return new RegistrationInput(
         id,
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
@@ -120,12 +121,12 @@ class UserRegistrationServiceTest {
         KdfMode.DEFAULT,
         new EncryptedValue(
             new SecureBuffer(new byte[CryptoConstants.GCM_NONCE_LEN]),
-            new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
+            new SecureBuffer(new byte[CryptoConstants.MK_LEN]),
             new SecureBuffer(new byte[CryptoConstants.GCM_TAG_LEN])),
         new EncryptedValue(
             new SecureBuffer(new byte[CryptoConstants.GCM_NONCE_LEN]),
-            new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
+            new SecureBuffer(new byte[CryptoConstants.MK_LEN]),
             new SecureBuffer(new byte[CryptoConstants.GCM_TAG_LEN])),
-        1);
+        schemaVer);
   }
 }

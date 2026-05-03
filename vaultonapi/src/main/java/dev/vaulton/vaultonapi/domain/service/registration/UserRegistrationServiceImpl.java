@@ -36,6 +36,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
   @Override
   public RegistrationResult createUser(RegistrationInput input) {
+    if (input == null || !input.isValid())
+      return new RegistrationResult.Failure(RegistrationError.INVALID_CRYPTO_BLOB);
+
     if (input.cryptoSchemaVer() != 1)
       return new RegistrationResult.Failure(RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA);
 

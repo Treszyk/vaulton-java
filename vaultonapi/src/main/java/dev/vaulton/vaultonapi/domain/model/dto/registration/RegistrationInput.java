@@ -1,5 +1,6 @@
 package dev.vaulton.vaultonapi.domain.model.dto.registration;
 
+import dev.vaulton.vaultonapi.domain.crypto.CryptoValidators;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
@@ -14,4 +15,15 @@ public record RegistrationInput(
     KdfMode kdfMode,
     EncryptedValue mkWrapPwd,
     EncryptedValue mkWrapRk,
-    int cryptoSchemaVer) {}
+    int cryptoSchemaVer) {
+  public boolean isValid() {
+    return accountId != null
+        && verifier != null
+        && adminVerifier != null
+        && rkVerifier != null
+        && sPwd != null
+        && kdfMode != null
+        && CryptoValidators.isValidMasterKey(mkWrapPwd)
+        && CryptoValidators.isValidMasterKey(mkWrapRk);
+  }
+}
