@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.domain.model.dto.registration;
+package dev.vaulton.vaultonapi.domain.model.dto.usercreation;
 
 import dev.vaulton.vaultonapi.domain.crypto.CryptoValidators;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
@@ -6,7 +6,7 @@ import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import java.util.UUID;
 
-public record RegistrationInput(
+public record UserCreationInput(
     UUID accountId,
     SecureBuffer verifier,
     SecureBuffer adminVerifier,

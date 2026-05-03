@@ -1,6 +1,6 @@
-package dev.vaulton.vaultonapi.domain.model.dto.registration;
+package dev.vaulton.vaultonapi.domain.model.dto.usercreation;
 
-public enum RegistrationError {
+public enum UserCreationError {
   /** The client is using a crypto schema version the server doesn't support. */
   UNSUPPORTED_CRYPTO_SCHEMA,
 

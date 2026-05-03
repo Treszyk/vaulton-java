@@ -1,11 +1,11 @@
-package dev.vaulton.vaultonapi.domain.service.registration;
+package dev.vaulton.vaultonapi.domain.service.usercreation;
 
 import dev.vaulton.vaultonapi.domain.crypto.CryptoConstants;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.model.User;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationError;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationInput;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationResult;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationError;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationInput;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationResult;
 import dev.vaulton.vaultonapi.domain.repository.UserRepository;
 import dev.vaulton.vaultonapi.domain.service.shared.CryptoService;
 import java.time.Instant;
@@ -13,7 +13,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class UserRegistrationServiceImpl implements UserRegistrationService {
+public class UserCreationServiceImpl implements UserCreationService {
   private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {
     void wipe() {
       if (stored != null) stored.wipe();
@@ -35,12 +35,12 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
   }
 
   @Override
-  public RegistrationResult createUser(RegistrationInput input) {
+  public UserCreationResult createUser(UserCreationInput input) {
     if (input == null || !input.isValid())
-      return new RegistrationResult.Failure(RegistrationError.INVALID_CRYPTO_BLOB);
+      return new UserCreationResult.Failure(UserCreationError.INVALID_CRYPTO_BLOB);
 
     if (input.cryptoSchemaVer() != 1)
-      return new RegistrationResult.Failure(RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA);
+      return new UserCreationResult.Failure(UserCreationError.UNSUPPORTED_CRYPTO_SCHEMA);
 
     SaltedVerifier login = null;
     SaltedVerifier admin = null;
@@ -57,7 +57,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
       rk = compute(input.rkVerifier());
 
       if (userRepository.existsById(input.accountId())) {
-        return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
+        return new UserCreationResult.Failure(UserCreationError.ACCOUNT_EXISTS);
       }
 
       User newUser =
@@ -80,7 +80,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
               .build();
 
       success = true;
-      return new RegistrationResult.Success(newUser);
+      return new UserCreationResult.Success(newUser);
     } finally {
       if (!success) {
         if (login != null) login.wipe();

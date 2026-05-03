@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.domain.service.registration;
+package dev.vaulton.vaultonapi.domain.service.usercreation;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,9 +10,9 @@ import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import dev.vaulton.vaultonapi.domain.model.User;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationError;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationInput;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationResult;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationError;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationInput;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationResult;
 import dev.vaulton.vaultonapi.domain.repository.UserRepository;
 import dev.vaulton.vaultonapi.domain.service.shared.CryptoService;
 import java.util.UUID;
@@ -23,17 +23,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class UserRegistrationServiceTest {
+class UserCreationServiceTest {
 
   @Mock private CryptoService cryptoService;
 
   @Mock private UserRepository userRepository;
 
-  private UserRegistrationService registrationService;
+  private UserCreationService registrationService;
 
   @BeforeEach
   void setUp() {
-    registrationService = new UserRegistrationServiceImpl(cryptoService, userRepository);
+    registrationService = new UserCreationServiceImpl(cryptoService, userRepository);
   }
 
   @Test
@@ -48,29 +48,29 @@ class UserRegistrationServiceTest {
 
   @Test
   void shouldReturnUnsupportedSchemaWhenVersionIsInvalid() {
-    RegistrationInput input = createValidInput(UUID.randomUUID(), 999);
+    UserCreationInput input = createValidInput(UUID.randomUUID(), 999);
 
-    RegistrationResult result = registrationService.createUser(input);
+    UserCreationResult result = registrationService.createUser(input);
 
-    assertInstanceOf(RegistrationResult.Failure.class, result);
+    assertInstanceOf(UserCreationResult.Failure.class, result);
     assertEquals(
-        RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA, ((RegistrationResult.Failure) result).error());
+        UserCreationError.UNSUPPORTED_CRYPTO_SCHEMA, ((UserCreationResult.Failure) result).error());
   }
 
   @Test
   void shouldReturnSuccessWhenInputIsValid() {
     UUID accountId = UUID.randomUUID();
-    RegistrationInput input = createValidInput(accountId);
+    UserCreationInput input = createValidInput(accountId);
 
     when(userRepository.existsById(accountId)).thenReturn(false);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
     when(cryptoService.computeStoredVerifier(any(), any()))
         .thenReturn(new SecureBuffer(new byte[32]));
 
-    RegistrationResult result = registrationService.createUser(input);
+    UserCreationResult result = registrationService.createUser(input);
 
-    assertInstanceOf(RegistrationResult.Success.class, result);
-    User user = ((RegistrationResult.Success) result).user();
+    assertInstanceOf(UserCreationResult.Success.class, result);
+    User user = ((UserCreationResult.Success) result).user();
     assertEquals(accountId, user.getId());
   }
 
@@ -78,23 +78,23 @@ class UserRegistrationServiceTest {
   @SuppressWarnings("resource")
   void shouldReturnFailureWhenAccountAlreadyExists() {
     UUID accountId = UUID.randomUUID();
-    RegistrationInput input = createValidInput(accountId);
+    UserCreationInput input = createValidInput(accountId);
 
     when(userRepository.existsById(accountId)).thenReturn(true);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
     when(cryptoService.computeStoredVerifier(any(), any()))
         .thenReturn(new SecureBuffer(new byte[32]));
 
-    RegistrationResult result = registrationService.createUser(input);
+    UserCreationResult result = registrationService.createUser(input);
 
-    assertInstanceOf(RegistrationResult.Failure.class, result);
-    assertEquals(RegistrationError.ACCOUNT_EXISTS, ((RegistrationResult.Failure) result).error());
+    assertInstanceOf(UserCreationResult.Failure.class, result);
+    assertEquals(UserCreationError.ACCOUNT_EXISTS, ((UserCreationResult.Failure) result).error());
   }
 
   @Test
   void shouldWipeSecretsOnFailure() {
     UUID accountId = UUID.randomUUID();
-    RegistrationInput input = createValidInput(accountId);
+    UserCreationInput input = createValidInput(accountId);
 
     when(userRepository.existsById(accountId)).thenReturn(true);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
@@ -107,12 +107,12 @@ class UserRegistrationServiceTest {
     verify(userRepository, atLeastOnce()).existsById(any());
   }
 
-  private RegistrationInput createValidInput(UUID id) {
+  private UserCreationInput createValidInput(UUID id) {
     return createValidInput(id, 1);
   }
 
-  private RegistrationInput createValidInput(UUID id, int schemaVer) {
-    return new RegistrationInput(
+  private UserCreationInput createValidInput(UUID id, int schemaVer) {
+    return new UserCreationInput(
         id,
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),

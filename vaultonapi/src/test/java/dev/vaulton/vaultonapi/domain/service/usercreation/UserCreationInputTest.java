@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.domain.service.registration;
+package dev.vaulton.vaultonapi.domain.service.usercreation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,68 +6,68 @@ import dev.vaulton.vaultonapi.domain.crypto.CryptoConstants;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
-import dev.vaulton.vaultonapi.domain.model.dto.registration.RegistrationInput;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationInput;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-class RegistrationInputTest {
+class UserCreationInputTest {
 
   @Test
   void shouldReturnTrueWhenAllFieldsArePresent() {
-    RegistrationInput input = createValidInput();
+    UserCreationInput input = createValidInput();
     assertTrue(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenAccountIdIsNull() {
-    RegistrationInput input = createInputWithNullField("accountId");
+    UserCreationInput input = createInputWithNullField("accountId");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenVerifierIsNull() {
-    RegistrationInput input = createInputWithNullField("verifier");
+    UserCreationInput input = createInputWithNullField("verifier");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenAdminVerifierIsNull() {
-    RegistrationInput input = createInputWithNullField("adminVerifier");
+    UserCreationInput input = createInputWithNullField("adminVerifier");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenRkVerifierIsNull() {
-    RegistrationInput input = createInputWithNullField("rkVerifier");
+    UserCreationInput input = createInputWithNullField("rkVerifier");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenSPwdIsNull() {
-    RegistrationInput input = createInputWithNullField("sPwd");
+    UserCreationInput input = createInputWithNullField("sPwd");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenKdfModeIsNull() {
-    RegistrationInput input = createInputWithNullField("kdfMode");
+    UserCreationInput input = createInputWithNullField("kdfMode");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenMkWrapPwdIsNull() {
-    RegistrationInput input = createInputWithNullField("mkWrapPwd");
+    UserCreationInput input = createInputWithNullField("mkWrapPwd");
     assertFalse(input.isValid());
   }
 
   @Test
   void shouldReturnFalseWhenMkWrapRkIsNull() {
-    RegistrationInput input = createInputWithNullField("mkWrapRk");
+    UserCreationInput input = createInputWithNullField("mkWrapRk");
     assertFalse(input.isValid());
   }
 
-  private RegistrationInput createValidInput() {
-    return new RegistrationInput(
+  private UserCreationInput createValidInput() {
+    return new UserCreationInput(
         UUID.randomUUID(),
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
@@ -79,8 +79,8 @@ class RegistrationInputTest {
         1);
   }
 
-  private RegistrationInput createInputWithNullField(String fieldName) {
-    return new RegistrationInput(
+  private UserCreationInput createInputWithNullField(String fieldName) {
+    return new UserCreationInput(
         fieldName.equals("accountId") ? null : UUID.randomUUID(),
         fieldName.equals("verifier")
             ? null
