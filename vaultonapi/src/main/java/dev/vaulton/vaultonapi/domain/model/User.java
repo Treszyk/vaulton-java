@@ -5,10 +5,7 @@ import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
 import java.time.Instant;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * The core domain entity representing a Vaulton user, their authentication verifiers, and master
@@ -16,6 +13,7 @@ import lombok.Setter;
  */
 @AllArgsConstructor
 @Getter
+@Builder
 public class User implements AutoCloseable {
   private final UUID id;
 

@@ -8,12 +8,13 @@ public final class CryptoValidators {
   private CryptoValidators() {}
 
   public static boolean isValidMasterKey(EncryptedValue v) {
-    return v != null && v.cipherText().length() == CryptoConstants.MK_LEN;
+    return v != null && v.cipherText() != null && v.cipherText().length() == CryptoConstants.MK_LEN;
   }
 
   public static boolean isValidVaultEntry(EncryptedValue v) {
-    if (v == null) return false;
-    return v.cipherText().length() >= 1
+    return v != null
+        && v.cipherText() != null
+        && v.cipherText().length() >= 1
         && v.cipherText().length() <= CryptoConstants.MAX_ENTRY_CIPHERTEXT_BYTES;
   }
 }
