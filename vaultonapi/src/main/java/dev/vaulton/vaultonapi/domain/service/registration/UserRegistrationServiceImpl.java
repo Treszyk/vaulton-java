@@ -14,7 +14,12 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class UserRegistrationServiceImpl implements UserRegistrationService {
-  private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {}
+  private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {
+    void wipe() {
+      stored.wipe();
+      salt.wipe();
+    }
+  }
 
   private final CryptoService cryptoService;
   private final UserRepository userRepository;
@@ -40,29 +45,40 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     SaltedVerifier admin = compute(input.adminVerifier());
     SaltedVerifier rk = compute(input.rkVerifier());
 
-    if (userRepository.existsById(input.accountId()))
+    if (userRepository.existsById(input.accountId())) {
+      login.wipe();
+      admin.wipe();
+      rk.wipe();
       return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
+    }
 
-    User newUser =
-        User.builder()
-            .id(input.accountId())
-            .verifier(login.stored())
-            .saltVerifier(login.salt())
-            .adminVerifier(admin.stored())
-            .saltAdminVerifier(admin.salt())
-            .saltPwd(input.sPwd())
-            .kdfMode(input.kdfMode())
-            .mkWrapPwd(input.mkWrapPwd())
-            .mkWrapRk(input.mkWrapRk())
-            .rkVerifier(rk.stored())
-            .saltRk(rk.salt())
-            .cryptoSchemaVer(input.cryptoSchemaVer())
-            .createdAt(Instant.now())
-            .updatedAt(Instant.now())
-            .failedLoginCount(0)
-            .build();
+    try {
+      User newUser =
+          User.builder()
+              .id(input.accountId())
+              .verifier(login.stored())
+              .saltVerifier(login.salt())
+              .adminVerifier(admin.stored())
+              .saltAdminVerifier(admin.salt())
+              .saltPwd(input.sPwd())
+              .kdfMode(input.kdfMode())
+              .mkWrapPwd(input.mkWrapPwd())
+              .mkWrapRk(input.mkWrapRk())
+              .rkVerifier(rk.stored())
+              .saltRk(rk.salt())
+              .cryptoSchemaVer(input.cryptoSchemaVer())
+              .createdAt(Instant.now())
+              .updatedAt(Instant.now())
+              .failedLoginCount(0)
+              .build();
 
-    return new RegistrationResult.Success(newUser);
+      return new RegistrationResult.Success(newUser);
+    } catch (Exception e) {
+      login.wipe();
+      admin.wipe();
+      rk.wipe();
+      throw e;
+    }
   }
 
   private SaltedVerifier compute(SecureBuffer raw) {
