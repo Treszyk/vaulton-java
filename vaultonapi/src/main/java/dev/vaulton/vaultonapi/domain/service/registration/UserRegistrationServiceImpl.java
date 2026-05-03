@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 public class UserRegistrationServiceImpl implements UserRegistrationService {
   private record SaltedVerifier(SecureBuffer stored, SecureBuffer salt) {
     void wipe() {
-      stored.wipe();
-      salt.wipe();
+      if (stored != null) stored.wipe();
+      if (salt != null) salt.wipe();
     }
   }
 
@@ -39,20 +39,24 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     if (input.cryptoSchemaVer() != 1)
       return new RegistrationResult.Failure(RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA);
 
-    // We perform the computation before checking for existence to equalize the
-    // response time and prevent Account ID enumeration (Timing Attack).
-    SaltedVerifier login = compute(input.verifier());
-    SaltedVerifier admin = compute(input.adminVerifier());
-    SaltedVerifier rk = compute(input.rkVerifier());
+    SaltedVerifier login = null;
+    SaltedVerifier admin = null;
+    SaltedVerifier rk = null;
 
-    if (userRepository.existsById(input.accountId())) {
-      login.wipe();
-      admin.wipe();
-      rk.wipe();
-      return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
-    }
+    // this is not ideal probably, but it's the only thing I can think of for now
+    boolean success = false;
 
     try {
+      // We perform the computation before checking for existence to equalize the
+      // response time and prevent Account ID enumeration (Timing Attack).
+      login = compute(input.verifier());
+      admin = compute(input.adminVerifier());
+      rk = compute(input.rkVerifier());
+
+      if (userRepository.existsById(input.accountId())) {
+        return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
+      }
+
       User newUser =
           User.builder()
               .id(input.accountId())
@@ -72,12 +76,14 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
               .failedLoginCount(0)
               .build();
 
+      success = true;
       return new RegistrationResult.Success(newUser);
-    } catch (Exception e) {
-      login.wipe();
-      admin.wipe();
-      rk.wipe();
-      throw e;
+    } finally {
+      if (!success) {
+        if (login != null) login.wipe();
+        if (admin != null) admin.wipe();
+        if (rk != null) rk.wipe();
+      }
     }
   }
 

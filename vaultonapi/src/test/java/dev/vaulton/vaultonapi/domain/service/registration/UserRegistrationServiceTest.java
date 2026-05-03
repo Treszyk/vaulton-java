@@ -39,6 +39,10 @@ class UserRegistrationServiceTest {
   void shouldReturnAccountExistsWhenIdIsTaken() {
     UUID existingId = UUID.randomUUID();
     when(userRepository.existsById(existingId)).thenReturn(true);
+
+    when(cryptoService.generateRandomBytes(anyInt())).thenReturn(mock(SecureBuffer.class));
+    when(cryptoService.computeStoredVerifier(any(), any())).thenReturn(mock(SecureBuffer.class));
+
     RegistrationInput input = createValidInput(existingId);
 
     RegistrationResult result = registrationService.createUser(input);
