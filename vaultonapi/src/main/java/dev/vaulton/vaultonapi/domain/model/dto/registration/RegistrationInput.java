@@ -1,4 +1,4 @@
-package dev.vaulton.vaultonapi.domain.model.dto;
+package dev.vaulton.vaultonapi.domain.model.dto.registration;
 
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
