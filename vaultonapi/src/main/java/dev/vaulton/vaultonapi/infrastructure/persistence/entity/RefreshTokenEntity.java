@@ -1,6 +1,5 @@
 package dev.vaulton.vaultonapi.infrastructure.persistence.entity;
 
-import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
 import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
@@ -39,5 +38,5 @@ public class RefreshTokenEntity {
   private Instant revokedAt;
 
   @Column(name = "RevocationReason")
-  private RevocationReason revocationReason;
+  private Integer revocationReason;
 }

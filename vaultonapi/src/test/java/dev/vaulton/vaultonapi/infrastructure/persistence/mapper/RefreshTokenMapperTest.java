@@ -33,7 +33,7 @@ class RefreshTokenMapperTest {
             Instant.now(),
             Instant.now().plusSeconds(3600),
             Instant.now(),
-            RevocationReason.REGULAR);
+            RevocationReason.REGULAR.ordinal());
 
     RefreshToken mappedToken = mapper.toDomain(testEntity);
 
@@ -44,7 +44,9 @@ class RefreshTokenMapperTest {
         () -> assertEquals(testEntity.getCreatedAt(), mappedToken.getCreatedAt()),
         () -> assertEquals(testEntity.getExpiresAt(), mappedToken.getExpiresAt()),
         () -> assertEquals(testEntity.getRevokedAt(), mappedToken.getRevokedAt()),
-        () -> assertEquals(testEntity.getRevocationReason(), mappedToken.getRevocationReason()),
+        () ->
+            assertEquals(
+                testEntity.getRevocationReason(), mappedToken.getRevocationReason().ordinal()),
         () -> assertArrayEquals(testEntity.getTokenHash(), mappedToken.getTokenHash().bytes()),
         () ->
             assertArrayEquals(

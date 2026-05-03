@@ -6,7 +6,15 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring", uses = CryptoMapper.class)
 public interface RefreshTokenMapper {
+  @org.mapstruct.Mapping(
+      target = "revocationReason",
+      expression =
+          "java(entity.getRevocationReason() != null ? dev.vaulton.vaultonapi.domain.enums.RevocationReason.values()[entity.getRevocationReason()] : null)")
   RefreshToken toDomain(RefreshTokenEntity entity);
 
+  @org.mapstruct.Mapping(
+      target = "revocationReason",
+      expression =
+          "java(domain.getRevocationReason() != null ? domain.getRevocationReason().ordinal() : null)")
   RefreshTokenEntity toEntity(RefreshToken domain);
 }
