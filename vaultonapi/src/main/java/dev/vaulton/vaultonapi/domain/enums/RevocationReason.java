@@ -13,4 +13,11 @@ public enum RevocationReason {
   SECURITY(1);
 
   private final int value;
+
+  public static RevocationReason fromValue(int value) {
+    for (RevocationReason reason : values()) {
+      if (reason.value == value) return reason;
+    }
+    throw new IllegalArgumentException("Unknown RevocationReason value: " + value);
+  }
 }

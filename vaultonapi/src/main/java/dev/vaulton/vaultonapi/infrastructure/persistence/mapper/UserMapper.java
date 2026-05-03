@@ -5,11 +5,12 @@ import dev.vaulton.vaultonapi.infrastructure.persistence.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = CryptoMapper.class)
+@Mapper(
+    componentModel = "spring",
+    uses = CryptoMapper.class,
+    imports = {dev.vaulton.vaultonapi.domain.enums.KdfMode.class})
 public interface UserMapper {
-  @Mapping(
-      target = "kdfMode",
-      expression = "java(entity.getKdfMode() == 1 ? KdfMode.DEFAULT : KdfMode.STRONG)")
+  @Mapping(target = "kdfMode", expression = "java(KdfMode.fromValue(entity.getKdfMode()))")
   User toDomain(UserEntity entity);
 
   @Mapping(target = "kdfMode", expression = "java(domain.getKdfMode().getValue())")

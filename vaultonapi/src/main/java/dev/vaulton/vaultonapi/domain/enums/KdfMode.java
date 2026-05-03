@@ -14,4 +14,11 @@ public enum KdfMode {
   STRONG(2);
 
   private final int value;
+
+  public static KdfMode fromValue(int value) {
+    for (KdfMode mode : values()) {
+      if (mode.value == value) return mode;
+    }
+    throw new IllegalArgumentException("Unknown KdfMode value: " + value);
+  }
 }
