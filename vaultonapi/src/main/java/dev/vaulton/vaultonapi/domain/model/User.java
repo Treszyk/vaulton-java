@@ -16,41 +16,40 @@ import lombok.Setter;
  */
 @AllArgsConstructor
 @Getter
-@Setter
 public class User implements AutoCloseable {
-  private UUID id;
+  private final UUID id;
 
   // Auth
-  @NonNull private SecureBuffer verifier;
-  @NonNull private SecureBuffer saltVerifier;
+  @Setter @NonNull private SecureBuffer verifier;
+  @Setter @NonNull private SecureBuffer saltVerifier;
 
   // Admin (Elevated actions)
-  @NonNull private SecureBuffer adminVerifier;
-  @NonNull private SecureBuffer saltAdminVerifier;
+  @Setter @NonNull private SecureBuffer adminVerifier;
+  @Setter @NonNull private SecureBuffer saltAdminVerifier;
 
   // Initial KDF salt
-  @NonNull private SecureBuffer saltPwd;
+  @Setter @NonNull private SecureBuffer saltPwd;
 
-  @NonNull private KdfMode kdfMode;
+  @Setter @NonNull private KdfMode kdfMode;
 
   // Master key wraps
-  @NonNull private EncryptedValue mkWrapPwd;
-  @NonNull private EncryptedValue mkWrapRk;
+  @Setter @NonNull private EncryptedValue mkWrapPwd;
+  @Setter @NonNull private EncryptedValue mkWrapRk;
 
   // Recovery
-  @NonNull private SecureBuffer rkVerifier;
-  @NonNull private SecureBuffer saltRk;
+  @Setter @NonNull private SecureBuffer rkVerifier;
+  @Setter @NonNull private SecureBuffer saltRk;
 
   // Crypto schema version (always 1 in this prototype)
   @NonNull private Integer cryptoSchemaVer;
 
   // metadata
-  private Instant createdAt;
-  private Instant updatedAt;
-  private Instant lastLoginAt;
-  private Integer failedLoginCount;
-  private Instant lastFailedLoginAt;
-  private Instant lockedUntil;
+  private final Instant createdAt;
+  @Setter private Instant updatedAt;
+  @Setter private Instant lastLoginAt;
+  @Setter private Integer failedLoginCount;
+  @Setter private Instant lastFailedLoginAt;
+  @Setter private Instant lockedUntil;
 
   public void wipe() {
     verifier.wipe();

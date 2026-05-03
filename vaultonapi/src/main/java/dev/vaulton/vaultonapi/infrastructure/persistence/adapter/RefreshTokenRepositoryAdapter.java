@@ -36,6 +36,8 @@ public class RefreshTokenRepositoryAdapter implements RefreshTokenRepository {
 
   @Override
   public boolean revokeAllByUserId(UUID userId, Instant revokedAt, RevocationReason reason) {
-    return jpaRepository.revokeAllByUserId(userId, revokedAt, reason) > 0;
+    return jpaRepository.revokeAllByUserId(
+            userId, revokedAt, reason != null ? reason.getValue() : null)
+        > 0;
   }
 }

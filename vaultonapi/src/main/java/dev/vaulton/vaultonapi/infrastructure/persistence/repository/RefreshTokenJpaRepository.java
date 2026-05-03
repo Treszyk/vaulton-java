@@ -1,6 +1,5 @@
 package dev.vaulton.vaultonapi.infrastructure.persistence.repository;
 
-import dev.vaulton.vaultonapi.domain.enums.RevocationReason;
 import dev.vaulton.vaultonapi.infrastructure.persistence.entity.RefreshTokenEntity;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -25,5 +24,5 @@ public interface RefreshTokenJpaRepository extends JpaRepository<RefreshTokenEnt
   int revokeAllByUserId(
       @Param("userId") UUID userId,
       @Param("revokedAt") Instant revokedAt,
-      @Param("reason") RevocationReason reason);
+      @Param("reason") Integer reason);
 }
