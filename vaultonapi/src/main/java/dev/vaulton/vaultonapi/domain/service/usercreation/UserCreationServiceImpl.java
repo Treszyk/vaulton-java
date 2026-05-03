@@ -80,6 +80,10 @@ public class UserCreationServiceImpl implements UserCreationService {
               .build();
 
       success = true;
+      // Note: The created User is returned to the Application layer for persistence orchestration.
+      // this service is a Domain Factory, not a transactional workflow.
+      // defensive cloning is intentionally omitted to minimize secret copies in memory
+      // ownership and lifecycle management are delegated to the application orchestrator.
       return new UserCreationResult.Success(newUser);
     } finally {
       if (!success) {
@@ -92,8 +96,12 @@ public class UserCreationServiceImpl implements UserCreationService {
 
   private SaltedVerifier compute(SecureBuffer raw) {
     SecureBuffer salt = cryptoService.generateRandomBytes(CryptoConstants.SALT_LEN);
-    SecureBuffer stored = cryptoService.computeStoredVerifier(raw, salt);
-
-    return new SaltedVerifier(stored, salt);
+    try {
+      SecureBuffer stored = cryptoService.computeStoredVerifier(raw, salt);
+      return new SaltedVerifier(stored, salt);
+    } catch (Exception e) {
+      salt.wipe();
+      throw e;
+    }
   }
 }

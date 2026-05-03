@@ -117,7 +117,7 @@ class UserCreationServiceTest {
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
         new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
-        new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
+        new SecureBuffer(new byte[CryptoConstants.SALT_LEN]),
         KdfMode.DEFAULT,
         new EncryptedValue(
             new SecureBuffer(new byte[CryptoConstants.GCM_NONCE_LEN]),

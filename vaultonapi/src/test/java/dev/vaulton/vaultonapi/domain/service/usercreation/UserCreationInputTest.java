@@ -91,7 +91,7 @@ class UserCreationInputTest {
         fieldName.equals("rkVerifier")
             ? null
             : new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
-        fieldName.equals("sPwd") ? null : new SecureBuffer(new byte[CryptoConstants.VERIFIER_LEN]),
+        fieldName.equals("sPwd") ? null : new SecureBuffer(new byte[CryptoConstants.SALT_LEN]),
         fieldName.equals("kdfMode") ? null : KdfMode.DEFAULT,
         fieldName.equals("mkWrapPwd") ? null : createRealWrap(),
         fieldName.equals("mkWrapRk") ? null : createRealWrap(),
