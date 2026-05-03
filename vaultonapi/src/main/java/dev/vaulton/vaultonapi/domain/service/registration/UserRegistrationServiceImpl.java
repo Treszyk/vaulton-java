@@ -34,12 +34,14 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     if (input.cryptoSchemaVer() != 1)
       return new RegistrationResult.Failure(RegistrationError.UNSUPPORTED_CRYPTO_SCHEMA);
 
-    if (userRepository.existsById(input.accountId()))
-      return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
-
+    // We perform the computation before checking for existence to equalize the
+    // response time and prevent Account ID enumeration (Timing Attack).
     SaltedVerifier login = compute(input.verifier());
     SaltedVerifier admin = compute(input.adminVerifier());
     SaltedVerifier rk = compute(input.rkVerifier());
+
+    if (userRepository.existsById(input.accountId()))
+      return new RegistrationResult.Failure(RegistrationError.ACCOUNT_EXISTS);
 
     User newUser =
         User.builder()
