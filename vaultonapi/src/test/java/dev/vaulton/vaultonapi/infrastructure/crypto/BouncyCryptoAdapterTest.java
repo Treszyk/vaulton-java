@@ -10,14 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("resource")
-class JceCryptoAdapterTest {
+class BouncyCryptoAdapterTest {
 
-  private JceCryptoAdapter adapter;
+  private BouncyCryptoAdapter adapter;
   private final byte[] fakeSaltSecret = new byte[32];
 
   @BeforeEach
   void setUp() {
-    adapter = new JceCryptoAdapter(new SecureRandom(), fakeSaltSecret);
+    adapter = new BouncyCryptoAdapter(new SecureRandom(), fakeSaltSecret);
   }
 
   @Test

@@ -8,16 +8,16 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.util.UUID;
 import javax.crypto.Mac;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
+import org.bouncycastle.crypto.digests.SHA256Digest;
+import org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator;
+import org.bouncycastle.crypto.params.KeyParameter;
 
 @RequiredArgsConstructor
-public class JceCryptoAdapter implements CryptoService {
+public class BouncyCryptoAdapter implements CryptoService {
   private final SecureRandom randGen;
   private final byte[] fakeSaltSecret;
 
@@ -32,35 +32,28 @@ public class JceCryptoAdapter implements CryptoService {
   @Override
   public SecureBuffer computeStoredVerifier(
       SecureBuffer verifierRaw, SecureBuffer salt, int iterations, byte[] pepper) {
+    PKCS5S2ParametersGenerator gen = null;
     byte[] verifierBytes = null;
     byte[] saltBytes = null;
     byte[] pepperedVerifier = null;
     byte[] hash = null;
 
-    char[] charPepperedVerifier = null;
-    PBEKeySpec spec = null;
-
     try {
+      gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+
       verifierBytes = verifierRaw.bytes();
       saltBytes = salt.bytes();
       pepperedVerifier = new byte[verifierBytes.length + pepper.length];
       System.arraycopy(verifierBytes, 0, pepperedVerifier, 0, verifierBytes.length);
       System.arraycopy(pepper, 0, pepperedVerifier, verifierBytes.length, pepper.length);
 
-      charPepperedVerifier = new char[pepperedVerifier.length];
-      for (int i = 0; i < charPepperedVerifier.length; i++) {
-        charPepperedVerifier[i] = (char) pepperedVerifier[i];
-      }
+      gen.init(pepperedVerifier, saltBytes, iterations);
+      KeyParameter keyParameter = (KeyParameter) gen.generateDerivedParameters(256);
+      hash = keyParameter.getKey();
 
-      spec = new PBEKeySpec(charPepperedVerifier, saltBytes, iterations, 256);
-      hash = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
       return new SecureBuffer(hash);
-    } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
     } finally {
-      if (spec != null) spec.clearPassword();
       zeroizeBuffer(pepperedVerifier);
-      zeroizeBuffer(charPepperedVerifier);
       zeroizeBuffer(verifierBytes);
       zeroizeBuffer(saltBytes);
       zeroizeBuffer(hash);
@@ -101,8 +94,8 @@ public class JceCryptoAdapter implements CryptoService {
       idBytes = idBuffer.array();
 
       combined = new byte[idBytes.length + contextBytes.length];
-      System.arraycopy(contextBytes, 0, combined, idBytes.length, contextBytes.length);
-      System.arraycopy(idBytes, 0, combined, 0, idBytes.length);
+      System.arraycopy(contextBytes, 0, combined, 0, contextBytes.length);
+      System.arraycopy(idBytes, 0, combined, contextBytes.length, idBytes.length);
 
       mac = Mac.getInstance("HmacSHA256");
       mac.init(spec);
