@@ -25,10 +25,6 @@ public class BouncyCryptoAdapter implements CryptoService {
     if (buffer != null) java.util.Arrays.fill(buffer, (byte) 0x00);
   }
 
-  void zeroizeBuffer(char[] buffer) {
-    if (buffer != null) java.util.Arrays.fill(buffer, (char) 0x00);
-  }
-
   @Override
   public SecureBuffer computeStoredVerifier(
       SecureBuffer verifierRaw, SecureBuffer salt, int iterations, byte[] pepper) {

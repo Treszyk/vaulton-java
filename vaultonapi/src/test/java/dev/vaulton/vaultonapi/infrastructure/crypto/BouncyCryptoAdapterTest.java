@@ -36,7 +36,7 @@ class BouncyCryptoAdapterTest {
   void shouldComputeConsistentVerifier() {
     SecureBuffer verifierRaw = adapter.generateRandomBytes(CryptoConstants.VERIFIER_LEN);
     SecureBuffer salt = adapter.generateRandomBytes(CryptoConstants.SALT_LEN);
-    int iterations = 600_000;
+    int iterations = 1000;
     byte[] pepper = adapter.generateRandomBytes(CryptoConstants.PEPPER_LEN).bytes();
 
     SecureBuffer firstCompute =
