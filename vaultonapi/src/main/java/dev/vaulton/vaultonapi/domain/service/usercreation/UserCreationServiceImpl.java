@@ -21,6 +21,8 @@ public class UserCreationServiceImpl implements UserCreationService {
     }
   }
 
+  private final int pbkdf2Iterations;
+  private final byte[] verifierPepper;
   private final CryptoService cryptoService;
   private final UserRepository userRepository;
 
@@ -97,7 +99,8 @@ public class UserCreationServiceImpl implements UserCreationService {
   private SaltedVerifier compute(SecureBuffer raw) {
     SecureBuffer salt = cryptoService.generateRandomBytes(CryptoConstants.SALT_LEN);
     try {
-      SecureBuffer stored = cryptoService.computeStoredVerifier(raw, salt);
+      SecureBuffer stored =
+          cryptoService.computeStoredVerifier(raw, salt, pbkdf2Iterations, verifierPepper);
       return new SaltedVerifier(stored, salt);
     } catch (Exception e) {
       salt.wipe();

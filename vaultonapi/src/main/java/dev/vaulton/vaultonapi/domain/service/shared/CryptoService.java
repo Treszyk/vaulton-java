@@ -4,7 +4,8 @@ import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import java.util.UUID;
 
 public interface CryptoService {
-  SecureBuffer computeStoredVerifier(SecureBuffer verifierRaw, SecureBuffer salt);
+  SecureBuffer computeStoredVerifier(
+      SecureBuffer verifierRaw, SecureBuffer salt, int iterations, byte[] pepper);
 
   SecureBuffer generateRandomBytes(int length);
 
