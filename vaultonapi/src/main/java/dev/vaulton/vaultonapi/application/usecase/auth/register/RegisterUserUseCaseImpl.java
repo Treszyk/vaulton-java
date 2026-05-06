@@ -64,6 +64,7 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
       };
     } finally {
       if (createdUser != null) createdUser.close();
+      request.close();
     }
   }
 }
