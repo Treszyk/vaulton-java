@@ -9,7 +9,7 @@ public interface UserRepository {
 
   boolean existsById(UUID id);
 
-  User save(User user);
+  boolean save(User user);
 
   boolean deleteById(UUID id);
 }
