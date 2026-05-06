@@ -29,18 +29,19 @@ class UserCreationServiceTest {
 
   @Mock private UserRepository userRepository;
 
-  private UserCreationService registrationService;
+  private UserCreationService userCreationService;
 
   @BeforeEach
   void setUp() {
-    registrationService = new UserCreationServiceImpl(cryptoService, userRepository);
+    userCreationService =
+        new UserCreationServiceImpl(1000, new byte[32], cryptoService, userRepository);
   }
 
   @Test
   void shouldGenerateUniqueIdWhenPreRegisterIsCalled() {
     when(userRepository.existsById(any())).thenReturn(false);
 
-    UUID generatedId = registrationService.preRegister();
+    UUID generatedId = userCreationService.preRegister();
 
     assertNotNull(generatedId);
     verify(userRepository, atLeastOnce()).existsById(any());
@@ -50,7 +51,7 @@ class UserCreationServiceTest {
   void shouldReturnUnsupportedSchemaWhenVersionIsInvalid() {
     UserCreationInput input = createValidInput(UUID.randomUUID(), 999);
 
-    UserCreationResult result = registrationService.createUser(input);
+    UserCreationResult result = userCreationService.createUser(input);
 
     assertInstanceOf(UserCreationResult.Failure.class, result);
     assertEquals(
@@ -64,10 +65,10 @@ class UserCreationServiceTest {
 
     when(userRepository.existsById(accountId)).thenReturn(false);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
-    when(cryptoService.computeStoredVerifier(any(), any()))
+    when(cryptoService.computeStoredVerifier(any(), any(), anyInt(), any()))
         .thenReturn(new SecureBuffer(new byte[32]));
 
-    UserCreationResult result = registrationService.createUser(input);
+    UserCreationResult result = userCreationService.createUser(input);
 
     assertInstanceOf(UserCreationResult.Success.class, result);
     User user = ((UserCreationResult.Success) result).user();
@@ -82,10 +83,10 @@ class UserCreationServiceTest {
 
     when(userRepository.existsById(accountId)).thenReturn(true);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
-    when(cryptoService.computeStoredVerifier(any(), any()))
+    when(cryptoService.computeStoredVerifier(any(), any(), anyInt(), any()))
         .thenReturn(new SecureBuffer(new byte[32]));
 
-    UserCreationResult result = registrationService.createUser(input);
+    UserCreationResult result = userCreationService.createUser(input);
 
     assertInstanceOf(UserCreationResult.Failure.class, result);
     assertEquals(UserCreationError.ACCOUNT_EXISTS, ((UserCreationResult.Failure) result).error());
@@ -98,12 +99,12 @@ class UserCreationServiceTest {
 
     when(userRepository.existsById(accountId)).thenReturn(true);
     when(cryptoService.generateRandomBytes(anyInt())).thenReturn(new SecureBuffer(new byte[16]));
-    when(cryptoService.computeStoredVerifier(any(), any()))
+    when(cryptoService.computeStoredVerifier(any(), any(), anyInt(), any()))
         .thenReturn(new SecureBuffer(new byte[32]));
 
-    registrationService.createUser(input);
+    userCreationService.createUser(input);
 
-    verify(cryptoService, times(3)).computeStoredVerifier(any(), any());
+    verify(cryptoService, times(3)).computeStoredVerifier(any(), any(), anyInt(), any());
     verify(userRepository, atLeastOnce()).existsById(any());
   }
 
