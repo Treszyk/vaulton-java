@@ -1,5 +1,6 @@
 package dev.vaulton.vaultonapi.domain.enums;
 
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -18,6 +19,7 @@ public enum RevocationReason {
     for (RevocationReason reason : values()) {
       if (reason.value == value) return reason;
     }
-    throw new IllegalArgumentException("Unknown RevocationReason value: " + value);
+    throw new VaultonDomainException(
+        "Unknown RevocationReason value: " + value, "Invalid revocation reason.");
   }
 }

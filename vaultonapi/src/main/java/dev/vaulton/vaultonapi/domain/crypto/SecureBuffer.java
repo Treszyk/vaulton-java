@@ -1,5 +1,6 @@
 package dev.vaulton.vaultonapi.domain.crypto;
 
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import java.util.Arrays;
 import lombok.Getter;
 
@@ -15,7 +16,9 @@ public final class SecureBuffer implements AutoCloseable {
   @Getter private boolean wiped = false;
 
   public SecureBuffer(byte[] bytes) {
-    if (bytes == null) throw new IllegalArgumentException("Bytes cannot be null");
+    if (bytes == null) {
+      throw new VaultonDomainException("Bytes cannot be null", "Invalid crypto blob sizes.");
+    }
     this.bytes = bytes.clone();
     this.cachedHashCode = Arrays.hashCode(this.bytes);
   }
