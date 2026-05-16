@@ -7,11 +7,11 @@ services:
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_DB=vaulton_db
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - vaulton-db-dev-data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -35,12 +35,12 @@ services:
       - Auth__FakeSaltSecret=${Auth__FakeSaltSecret}
       - Auth__VerifierPbkdf2Iterations=${Auth__VerifierPbkdf2Iterations}
     ports:
-      - '8080:8080'
+      - "8080:8080"
     depends_on:
       vaulton-db:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080/api/status']
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -53,7 +53,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: vaulton-web-dev
     ports:
-      - '4200:4200'
+      - "4200:4200"
     volumes:
       - ./frontend/vaulton-web/src:/app/src
       - ./frontend/vaulton-web/public:/app/public

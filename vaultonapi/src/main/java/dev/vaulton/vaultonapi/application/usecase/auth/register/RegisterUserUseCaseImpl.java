@@ -5,6 +5,7 @@ import dev.vaulton.vaultonapi.application.dto.auth.responses.RegisterResponse;
 import dev.vaulton.vaultonapi.domain.crypto.EncryptedValue;
 import dev.vaulton.vaultonapi.domain.crypto.SecureBuffer;
 import dev.vaulton.vaultonapi.domain.enums.KdfMode;
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import dev.vaulton.vaultonapi.domain.model.User;
 import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationInput;
 import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationResult;
@@ -24,6 +25,18 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
   @Override
   @Transactional
   public RegisterResponse execute(RegisterRequest request) {
+    if (request == null
+        || request.accountId() == null
+        || request.verifier() == null
+        || request.adminVerifier() == null
+        || request.rkVerifier() == null
+        || request.s_pwd() == null
+        || request.mkWrapPwd() == null
+        || request.mkWrapRk() == null) {
+      throw new VaultonDomainException(
+          "Malformed registration request: missing components", "Invalid crypto blob sizes.");
+    }
+
     User createdUser = null;
 
     try (SecureBuffer loginVerifier = new SecureBuffer(request.verifier());
@@ -60,11 +73,27 @@ public class RegisterUserUseCaseImpl implements RegisterUserUseCase {
           yield new RegisterResponse(createdUser.getId());
         }
         case UserCreationResult.Failure failure ->
-            throw new RuntimeException("Registration failed: " + failure.error());
+            throw switch (failure.error()) {
+              case ACCOUNT_EXISTS ->
+                  new VaultonDomainException(
+                      "Account already exists for ID: " + request.accountId(),
+                      "Account cannot be created.");
+              case INVALID_CRYPTO_BLOB ->
+                  new VaultonDomainException(
+                      "Invalid crypto blob sizes in registration request",
+                      "Invalid crypto blob sizes.");
+              case INVALID_KDF_MODE ->
+                  new VaultonDomainException(
+                      "Invalid KDF mode value: " + request.kdfMode(), "Invalid KDF mode.");
+              case UNSUPPORTED_CRYPTO_SCHEMA ->
+                  new VaultonDomainException(
+                      "Unsupported crypto schema version: " + request.cryptoSchemaVer(),
+                      "Unsupported crypto schema version.");
+            };
       };
     } finally {
       if (createdUser != null) createdUser.close();
-      request.close();
+      if (request != null) request.close();
     }
   }
 }

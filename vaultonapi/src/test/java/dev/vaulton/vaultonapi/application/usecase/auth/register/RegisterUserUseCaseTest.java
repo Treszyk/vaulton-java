@@ -8,7 +8,9 @@ import dev.vaulton.vaultonapi.application.dto.auth.requests.RegisterRequest;
 import dev.vaulton.vaultonapi.application.dto.auth.responses.RegisterResponse;
 import dev.vaulton.vaultonapi.application.dto.shared.EncryptedValueDto;
 import dev.vaulton.vaultonapi.domain.crypto.CryptoConstants;
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import dev.vaulton.vaultonapi.domain.model.User;
+import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationError;
 import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationInput;
 import dev.vaulton.vaultonapi.domain.model.dto.usercreation.UserCreationResult;
 import dev.vaulton.vaultonapi.domain.repository.UserRepository;
@@ -73,9 +75,9 @@ class RegisterUserUseCaseTest {
             accountId, verifier, verifier, verifier, salt, 1, dummyEnc, dummyEnc, 1);
 
     when(userCreationService.createUser(any(UserCreationInput.class)))
-        .thenReturn(new UserCreationResult.Failure(null));
+        .thenReturn(new UserCreationResult.Failure(UserCreationError.ACCOUNT_EXISTS));
 
-    assertThrows(RuntimeException.class, () -> useCase.execute(request));
+    assertThrows(VaultonDomainException.class, () -> useCase.execute(request));
     verify(userRepository, never()).save(any());
   }
 }

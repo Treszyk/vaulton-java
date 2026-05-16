@@ -1,5 +1,6 @@
 package dev.vaulton.vaultonapi.domain.enums;
 
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,6 +20,6 @@ public enum KdfMode {
     for (KdfMode mode : values()) {
       if (mode.value == value) return mode;
     }
-    throw new IllegalArgumentException("Unknown KdfMode value: " + value);
+    throw new VaultonDomainException("Unknown KdfMode value: " + value, "Invalid KDF mode.");
   }
 }

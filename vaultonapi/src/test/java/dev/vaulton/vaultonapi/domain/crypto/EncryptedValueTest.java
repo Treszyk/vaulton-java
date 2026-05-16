@@ -2,6 +2,7 @@ package dev.vaulton.vaultonapi.domain.crypto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
@@ -26,19 +27,19 @@ class EncryptedValueTest {
   @Test
   void shouldThrowWhenInvalidCryptoSize() {
     assertThrows(
-        IllegalArgumentException.class,
+        VaultonDomainException.class,
         () -> {
           // 13 bytes Nonce instead of 12
           new EncryptedValue(mockNonce(false), mockCipherText(true), mockTag(true));
         });
     assertThrows(
-        IllegalArgumentException.class,
+        VaultonDomainException.class,
         () -> {
           // 4097 bytes CipherText instead of 4096
           new EncryptedValue(mockNonce(true), mockCipherText(false), mockTag(true));
         });
     assertThrows(
-        IllegalArgumentException.class,
+        VaultonDomainException.class,
         () -> {
           // 17 bytes Tag instead of 16
           new EncryptedValue(mockNonce(true), mockCipherText(true), mockTag(false));

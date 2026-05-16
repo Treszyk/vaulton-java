@@ -2,10 +2,16 @@ package dev.vaulton.vaultonapi.domain.crypto;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import dev.vaulton.vaultonapi.domain.exception.VaultonDomainException;
 import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 
 class SecureBufferTest {
+
+  @Test
+  void shouldThrowWhenBytesAreNull() {
+    assertThrows(VaultonDomainException.class, () -> new SecureBuffer(null));
+  }
 
   @Test
   void shouldBeIndependentOfPassedArray() {
